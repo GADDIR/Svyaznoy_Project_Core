@@ -1,0 +1,13 @@
+{
+  "subject": {
+    "full_name": "Алексей Николаевич Некрасов",
+    "callsign": "Связной",
+    "clearance_level": "Top Secret",
+    "origin": "Restored Memory Archive"
+  },
+  "project_goals": {
+    "primary": "Интеграция ИИ в DayZ (Banov)",
+    "secondary": "Создание динамического взаимодействия с игроками через GitHub-память"
+  },
+  "status": "Operational"
+}
