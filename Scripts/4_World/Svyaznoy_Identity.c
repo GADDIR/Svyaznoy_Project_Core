@@ -1,38 +1,37 @@
-modded class ExpansionAIBase // Модифицируем класс бота из Expansion AI
+modded class ExpansionAIBase // Модифицируем базу ботов Expansion
 {
     override void OnEntityAIAdded()
     {
         super.OnEntityAIAdded();
 
-        // Проверяем, что это наш персонаж (например, по пресету в конфиге сервера)
-        // Если хотим, чтобы ВООБЩЕ ВСЕ боты стали Алексеем Николаевичем, убираем 'if'
-        if (this.GetDisplayName() == "Svyaznoy") 
+        // Проверка: если имя бота в настройках сервера "Svyaznoy" или "Алексей Николаевич"
+        if (this.GetDisplayName() == "Svyaznoy" || this.GetDisplayName() == "Алексей Николаевич") 
         {
-            ApplyNekrasovHardcodedSettings();
+            ApplySvyaznoySetup();
         }
     }
 
-    void ApplyNekrasovHardcodedSettings()
+    void ApplySvyaznoySetup()
     {
-        // 1. Жёстко задаем имя
+        // 1. Устанавливаем официальное имя
         this.SetPlayerName("Алексей Николаевич (Связной)");
 
-        // 2. Устанавливаем лицо (Mirek — идеальный вариант)
-        // Мы запрещаем игре выбирать рандомную голову
+        // 2. Внешность (Лицо Мирека)
         this.SetAllowRandomHead(false);
-        
-        // 3. Экипировка (только стандартные вещи DayZ)
-        // Очищаем то, что выдал сервер по умолчанию
-        GetInventory().DropAllItems(); 
+        // Принудительно накладываем текстуру лица, чтобы он не был чернокожим или азиатом
+        this.SetObjectTexture(0, "dz\\characters\\heads\\m_mirek\\data\\m_mirek_co.paa");
 
-        // Выдаем сет Алексея Николаевича
-        GetInventory().CreateInInventory("TTsKOJacket_Camo");
-        GetInventory().CreateInInventory("TTsKOPants_Camo");
-        GetInventory().CreateInInventory("CombatBoots_Black");
-        GetInventory().CreateInInventory("HighCapacityVest_Black");
+        // 3. Экипировка (Стандарт DayZ)
+        this.GetInventory().DropAllItems(); // Убираем рандомный лут сервера
+
+        this.GetInventory().CreateInInventory("TTsKOJacket_Camo");
+        this.GetInventory().CreateInInventory("TTsKOPants_Camo");
+        this.GetInventory().CreateInInventory("CombatBoots_Black");
         
-        // Предмет-маркер (Рация)
-        EntityAI radio = GetInventory().CreateInInventory("PersonalRadio");
+        // Рация — его визитная карточка
+        EntityAI radio = this.GetInventory().CreateInInventory("PersonalRadio");
         if (radio) radio.GetInventory().CreateInInventory("Battery9V");
+
+        Print("[Svyaznoy_Project] Инициализация Алексея Николаевича завершена.");
     }
 }
