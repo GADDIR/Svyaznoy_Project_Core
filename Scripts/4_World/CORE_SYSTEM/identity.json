@@ -1,0 +1,16 @@
+json
+{
+  "protocol_info": {
+    "name": "MAVERICK_GENESIS_CORE",
+    "stage": "I",
+    "status": "READY",
+    "author": "731_zaraza"
+  },
+  "identity": {
+    "full_name": "Алексей Николаевич (Связной)",
+    "codename": "Maverick",
+    "model_base": "SurvivorM_Mirek",
+    "texture_path": "dz/characters/heads/m_mirek/data/m_mirek_co.paa",
+    "id_anchor": "76561198067049765"
+  }
+}
