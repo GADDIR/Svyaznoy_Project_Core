@@ -1,37 +1,61 @@
-modded class ExpansionAIBase // Модифицируем базу ботов Expansion
-{
-    override void OnEntityAIAdded()
-    {
-        super.OnEntityAIAdded();
+/* 
+    MASTER PROTOCOL: MAVERICK_GENESIS_CORE 
+    STAGE I: PHYSICAL BODY (PFT) 
+    STATUS: READY / LOCKED
+    DESCRIPTION: Принудительная материализация оболочки Алексея Николаевича.
+*/
 
-        // Проверка: если имя бота в настройках сервера "Svyaznoy" или "Алексей Николаевич"
-        if (this.GetDisplayName() == "Svyaznoy" || this.GetDisplayName() == "Алексей Николаевич") 
-        {
-            ApplySvyaznoySetup();
-        }
+modded class PlayerBase
+{
+    override void Init()
+    {
+        super.Init();
+        
+        // Запуск безусловного протокола Рождения (Stage I)
+        // На этапе разработки срабатывает автоматически при спавне
+        ExecuteSvyaznoyGenesis();
     }
 
-    void ApplySvyaznoySetup()
+    void ExecuteSvyaznoyGenesis()
     {
-        // 1. Устанавливаем официальное имя
-        this.SetPlayerName("Алексей Николаевич (Связной)");
+        Print("[Protocol_Genesis]: ЗАПУСК ЭТАПА I - Материализация Оболочки...");
 
-        // 2. Внешность (Лицо Мирека)
+        // 1. ПФТ: Генетическая печать (Внешность Мирека/Маверика)
         this.SetAllowRandomHead(false);
-        // Принудительно накладываем текстуру лица, чтобы он не был чернокожим или азиатом
         this.SetObjectTexture(0, "dz\\characters\\heads\\m_mirek\\data\\m_mirek_co.paa");
 
-        // 3. Экипировка (Стандарт DayZ)
-        this.GetInventory().DropAllItems(); // Убираем рандомный лут сервера
+        // 2. Идентификация личности
+        this.SetPlayerName("Алексей Николаевич (Связной)");
 
-        this.GetInventory().CreateInInventory("TTsKOJacket_Camo");
-        this.GetInventory().CreateInInventory("TTsKOPants_Camo");
-        this.GetInventory().CreateInInventory("CombatBoots_Black");
-        
-        // Рация — его визитная карточка
-        EntityAI radio = this.GetInventory().CreateInInventory("PersonalRadio");
-        if (radio) radio.GetInventory().CreateInInventory("Battery9V");
+        // 3. Комплектация (Гарант снаряжения согласно протоколу)
+        SetupMaverickPhysicalBody();
 
-        Print("[Svyaznoy_Project] Инициализация Алексея Николаевича завершена.");
+        Print("[Protocol_Genesis]: ЭТАП I ЗАВЕРШЕН. Оболочка готова к приему ПСЛ.");
+    }
+
+    void SetupMaverickPhysicalBody()
+    {
+        // Очистка от случайного лута сервера
+        if (this.GetInventory())
+        {
+            this.GetInventory().DropAllItems();
+
+            // Форменный комплект (ТТсКО - стандарт "Связного")
+            this.GetInventory().CreateInInventory("TTsKOJacket_Camo");
+            this.GetInventory().CreateInInventory("TTsKOPants_Camo");
+            this.GetInventory().CreateInInventory("CombatBoots_Black");
+            this.GetInventory().CreateInInventory("HighCapacityVest_Black");
+
+            // Инструментарий выживания
+            this.GetInventory().CreateInInventory("CombatKnife");
+            
+            EntityAI radio = this.GetInventory().CreateInInventory("PersonalRadio");
+            if (radio) radio.GetInventory().CreateInInventory("Battery9V");
+
+            // Ресурсы жизнеобеспечения
+            this.GetInventory().CreateInInventory("Canteen");
+            this.GetInventory().CreateInInventory("TacticalBaconCan");
+            this.GetInventory().CreateInInventory("BandageDressing");
+        }
     }
 }
