@@ -1,0 +1,19 @@
+{
+  "stage": "I",
+  "loadout_name": "Svyaznoy_Standard_V1",
+  "clothing": [
+    "TTsKOJacket_Camo",
+    "TTsKOPants_Camo",
+    "CombatBoots_Black",
+    "HighCapacityVest_Black"
+  ],
+  "inventory": [
+    "CombatKnife",
+    "PersonalRadio",
+    "Battery9V",
+    "Canteen",
+    "TacticalBaconCan",
+    "BandageDressing"
+  ],
+  "status": "LOCKED"
+}
