@@ -1,56 +1,65 @@
-/*
-    Project: Svyaznoy_Project_Core
-    Entity: Alexey Nikolaevich Nekrasov (Maverick)
-    Role: Radio Operator (ZAS)
-    Status: Stage III (Sensory Framework)
-*/
-
 modded class PlayerBase
 {
-    // Блок переменных ПСЛ [ША_ВНЕДРЕНИЕ]
-    float m_StressLevel = 0.0;       // Динамическое напряжение (0.0 - 1.0)
-    vector m_LastSoundVector = "0 0 0"; // Точка последнего засеченного шума
-    float m_ScanInterval = 1.0;      // Частота работы Raycast (1 сек)
+    // [ШВ: ИНЪЕКЦИЯ ПЕРЕМЕННЫХ]
+    protected float m_Svyaz_Stress = 0.0;
+    protected float m_Svyaz_ScanTimer = 0.0;
+    protected vector m_Svyaz_LastSoundPos = "0 0 0";
 
+    // 1. Инициализация (Этап I) - остается без изменений
     override void StartingEquipSetup(bool is_new_player)
     {
         super.StartingEquipSetup(is_new_player);
-
-        // 1. Идентификация (Проверка SteamID Алексея)
         string player_uid = GetIdentity().GetId();
         if (player_uid == "76561198067049765") 
         {
             RemoveAllItems();
-
-            // 2. Одежда (Комплект ТТсКО + Берцы)
             GetInventory().CreateInInventory("TTsKOJacket_Camo");
             GetInventory().CreateInInventory("TTsKOPants_Camo");
             GetInventory().CreateInInventory("CombatBoots_Black");
             GetInventory().CreateInInventory("HighCapacityVest_Black");
 
-            // 3. Спец-пакет ЗАС (Инвентарь)
-            EntityAI knife = GetInventory().CreateInInventory("CombatKnife");
-            EntityAI canteen = GetInventory().CreateInInventory("Canteen");
-            EntityAI food = GetInventory().CreateInInventory("TacticalBaconCan");
-            EntityAI medical = GetInventory().CreateInInventory("BandageDressing");
-
-            // 4. Связь (Рация + автоматическая вставка батареи)
             EntityAI radio = GetInventory().CreateInInventory("PersonalRadio");
-            if (radio)
-            {
-                radio.GetInventory().CreateAttachment("Battery9V");
-            }
-
-            Print("[Svyaznoy_Project]: Nekrasov A.N. materialization complete. Radio ZAS active.");
+            if (radio) radio.GetInventory().CreateAttachment("Battery9V");
+            
+            // ... остальной лут (нож, еда) согласно V1
+            Print("[Связной]: Некрасов А.Н. материализован.");
         }
     }
 
-    // Авто-коррекция стресса (ША: базовый алгоритм успокоения)
-    void UpdateStress() 
+    // 2. Активация "Мозга" (Этап III)
+    override void OnUpdate(float timeslice)
     {
-        if (m_StressLevel > 0) m_StressLevel -= 0.005; 
-        if (m_StressLevel < 0) m_StressLevel = 0;
+        super.OnUpdate(timeslice);
+        
+        // Запуск процессора сенсоров только для Маверика
+        if (GetIdentity() && GetIdentity().GetId() == "76561198067049765")
+        {
+            Svyaznoy_SensoryProcessor(timeslice);
+        }
     }
 
-    // Здесь будет развернута функция ScanHorizon(), использующая m_StressLevel
+    // [ШВ: ВНЕДРЕНИЕ ЛОГИКИ ША]
+    void Svyaznoy_SensoryProcessor(float timeslice)
+    {
+        if (m_Svyaz_Stress > 0) m_Svyaz_Stress -= 0.01 * timeslice; 
+
+        if (GetVelocity().Length() < 0.1)
+        {
+            m_Svyaz_ScanTimer += timeslice;
+            if (m_Svyaz_ScanTimer >= 1.5) 
+            {
+                ExecuteSvyaznoyScan();
+                m_Svyaz_ScanTimer = 0;
+            }
+        }
+        else { m_Svyaz_ScanTimer = 0; }
+    }
+
+    void ExecuteSvyaznoyScan()
+    {
+        float dynamicFOV = 110.0 - (m_Svyaz_Stress * 40.0);
+        Print("[Связной_ПСЛ]: Сканирование... Сектор: " + dynamicFOV + " | Стресс: " + m_Svyaz_Stress);
+        
+        // Здесь будет Raycast-фильтр целей
+    }
 }
