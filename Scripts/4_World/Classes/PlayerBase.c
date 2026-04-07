@@ -2,11 +2,16 @@
     Project: Svyaznoy_Project_Core
     Entity: Alexey Nikolaevich Nekrasov (Maverick)
     Role: Radio Operator (ZAS)
-    Status: Stage I (Birth Protocol)
+    Status: Stage III (Sensory Framework)
 */
 
 modded class PlayerBase
 {
+    // Блок переменных ПСЛ [ША_ВНЕДРЕНИЕ]
+    float m_StressLevel = 0.0;       // Динамическое напряжение (0.0 - 1.0)
+    vector m_LastSoundVector = "0 0 0"; // Точка последнего засеченного шума
+    float m_ScanInterval = 1.0;      // Частота работы Raycast (1 сек)
+
     override void StartingEquipSetup(bool is_new_player)
     {
         super.StartingEquipSetup(is_new_player);
@@ -15,7 +20,6 @@ modded class PlayerBase
         string player_uid = GetIdentity().GetId();
         if (player_uid == "76561198067049765") 
         {
-            // Очистка дефолтного лута
             RemoveAllItems();
 
             // 2. Одежда (Комплект ТТсКО + Берцы)
@@ -41,5 +45,12 @@ modded class PlayerBase
         }
     }
 
-    // Здесь будет внедрен Этап III (Сенсорика / Raycast)
+    // Авто-коррекция стресса (ША: базовый алгоритм успокоения)
+    void UpdateStress() 
+    {
+        if (m_StressLevel > 0) m_StressLevel -= 0.005; 
+        if (m_StressLevel < 0) m_StressLevel = 0;
+    }
+
+    // Здесь будет развернута функция ScanHorizon(), использующая m_StressLevel
 }
