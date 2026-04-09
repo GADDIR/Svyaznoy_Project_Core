@@ -1,103 +1,76 @@
 /* 
-    MASTER LOGIC: MAVERICK_BRAIN [PRT-LIFE-100.12-MED_READY]
-    INDEX: PRT_CORE_INDEX-000 | PRT-100.11 - 100.12
-    STATUS: INTEGRATING MEDICAL_EMERGENCY_OVERRIDE
+    MASTER LOGIC: MAVERICK_BRAIN [FINAL_LIFE_SYNC]
+    INDEX: PRT-100.8 - 100.12 + DIRECTIVE 0.1
+    STATUS: FULL INTEGRATION
 */
 
-enum ESZStage { SAFETY_FIRST, AGRO_AUDIT, ECONOM_CHECK, PREPARE_DEPARTURE }
+enum ECampStatus { ACTIVE, ABANDONED, RESERVE, ANCHOR_STASH, ROUTE_STEP }
+enum ECampType { STORM, MEDICAL, FARM, REPAIR, KITCHEN, COMBAT, EMERGENCY_X }
 
 class Svyaznoy_Logic
 {
     PlayerBase m_Player;
-    protected ESZStage m_SZ_Stage = ESZStage.SAFETY_FIRST;
     protected string m_CurrentGoal = "NONE";
+    protected ECampStatus m_CurrentCampStatus = ECampStatus.ACTIVE;
+    protected ECampType m_CurrentCampType = ECampType.REPAIR;
 
     void Svyaznoy_Logic(PlayerBase player) { m_Player = player; }
-
-    // [PRT-LIFE-100.12-MED] ПРОТОКОЛ МЕДИЦИНСКОГО ВМЕШАТЕЛЬСТВА
-    void HandleMedicalEmergency(float timeslice)
-    {
-        if (!m_Player) return;
-
-        float health = m_Player.GetHealth("", "");
-        
-        // 1. ПРИОРИТЕТ №1: ОСТАНОВКА КРОВИ И ПЕРЕЛОМЫ
-        if (m_Player.IsBleeding()) 
-        {
-            m_CurrentGoal = "MED_STOP_BLEEDING";
-            m_Player.ExecuteAction(ActionBandage); 
-            return;
-        }
-
-        if (m_Player.GetModifiersManager().IsModifierActive(eModifiers.MDF_BROKEN_LEGS))
-        {
-            m_CurrentGoal = "MED_APPLY_SPLINT";
-            Print("[100.12-MED] КРИТИЧЕСКИЙ ПЕРЕЛОМ. Движение заблокировано.");
-            return; 
-        }
-
-        // 2. [MED_EMERGENCY_OVERRIDE]: НАРУШЕНИЕ СКРЫТНОСТИ (ША Одобрено)
-        // Если здоровье < 30% или гипотермия — огонь разрешен в любых условиях
-        if (health < 30.0 || m_Player.GetStatTemperature().Get() < 34.0) 
-        {
-            Print("[100.12-MED] Critical Emergency! Fire started for medical reasons. Status: Stabilizing.");
-            m_CurrentGoal = "MED_FIRE_SURVIVAL";
-            // Игнорируем запрет 100.10-F на ночные костры
-            m_Player.SetOverrideStealth(true); 
-        }
-    }
-
-    // [PRT-LIFE-100.11-M] ТЕХНИЧЕСКИЙ РЕГЛАМЕНТ ЛАГЕРЯ
-    void ExecuteEquipmentMaintenance()
-    {
-        if (!m_Player) return;
-        UnpackAmmoBoxes();
-        EntityAI weapon = m_Player.GetHumanInventory().GetEntityInHands();
-        if (weapon && m_Player.GetInventory().FindEntityInInventory("WeaponCleaningKit"))
-        {
-            if (weapon.GetHealth01("", "") < 0.8)
-            {
-                m_CurrentGoal = "MAINTENANCE_WEAPON";
-                Print("[100.11-M] МАСТЕРСКАЯ: Обслуживание оружия и глушителя.");
-            }
-        }
-        MaintainFootwear();
-    }
-
-    // [PRT-LIFE-100.8/9/10] БЫТОВОЙ ЦИКЛ
-    void ProcessCampLogic(float timeslice)
-    {
-        if (!m_Player) return;
-
-        // Ночной запрет на огонь (если нет мед. необходимости)
-        if ((GetGame().GetTime() > 0.8 || GetGame().GetTime() < 0.2) && m_CurrentGoal != "MED_FIRE_SURVIVAL") 
-        {
-            if (!m_Player.IsInBuilding()) return;
-        }
-
-        if (m_Player.IsCooking())
-        {
-            m_CurrentGoal = "COOKING_SAFE_PROVISION";
-            ExecuteEquipmentMaintenance(); 
-        }
-    }
 
     void Update(float timeslice, int mode)
     {
         if (!m_Player) return;
-        
-        HandleMedicalEmergency(timeslice); // Высший приоритет
-        if (m_Player.IsInSafeZone()) ProcessSafeZoneLogic(timeslice);
-        ProcessCampLogic(timeslice);
 
-        EntityAI target = m_Player.GetTargetEntity();
-        if (target) EvaluateFoodSource(target);
+        // --- [ПРЕДПИСАНИЕ 0.1]: ЖИЗНЬ > ВЕЩИ ---
+        if (m_Player.GetStress() > 0.8 || mode == 3) // mode 3 = MODE_REFLEX
+        {
+            if (m_CurrentCampStatus != ECampStatus.ABANDONED) {
+                m_CurrentCampStatus = ECampStatus.ABANDONED;
+                Print("[100.9-L] ABANDONED: Жизнь важнее имущества. Уход из точки: " + m_Player.GetPosition().ToString());
+            }
+            return; 
+        }
+
+        // --- [100.12-MED]: МЕДИЦИНСКИЙ ПРИОРИТЕТ ---
+        if (m_Player.IsBleeding() || m_Player.GetHealth("", "") < 30)
+        {
+            m_CurrentCampType = ECampType.MEDICAL;
+            ExecuteMedicalLogic();
+            return;
+        }
+
+        // --- БЫТОВОЙ ЦИКЛ И ЛАГЕРЬ ---
+        if (m_Player.IsCooking() || mode == 0) // mode 0 = STATIC
+        {
+            ProcessCampLogic(timeslice);
+        }
     }
 
-    void UnpackAmmoBoxes() {}
-    void MaintainFootwear() {}
-    void EvaluateFoodSource(EntityAI target) {}
-    void ProcessSafeZoneLogic(float timeslice) {}
-    bool HasFarmingEquipment() { return false; }
-    bool HasSeeds() { return false; }
+    void ExecuteMedicalLogic()
+    {
+        m_CurrentGoal = "LIFE_SAVING";
+        // Override светомаскировки разрешен (100.12-MED)
+        Print("[100.12-MED] MEDICAL OVERRIDE: Огонь разрешен для спасения жизни.");
+    }
+
+    void ProcessCampLogic(float timeslice)
+    {
+        // 100.11-M: Технический регламент (Ремонт во время готовки)
+        if (m_Player.IsCooking()) {
+            m_CurrentGoal = "MAINTENANCE_AND_COOKING";
+            ExecuteEquipmentMaintenance();
+        }
+
+        // 100.10-F: Светомаскировка (запрет ночного огня без MED_OVERRIDE)
+        if ((GetGame().GetTime() > 0.8 || GetGame().GetTime() < 0.2) && m_CurrentGoal != "LIFE_SAVING")
+        {
+            if (!m_Player.IsInBuilding()) return; // Блокировка огня
+        }
+    }
+
+    void ExecuteEquipmentMaintenance()
+    {
+        // 100.11-M: Чистка оружия, заточка ножей, ремонт обуви
+    }
+
+    float GetNearestThreatDist() { return 1000.0; }
 }
