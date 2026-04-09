@@ -1,52 +1,63 @@
+/* 
+    CORE BODY: MAVERICK_PFТ [UPGRADED]
+    INTEGRATION: [PRT-LIFE-100] & [PRT-COMB-400]
+    REVISION: 1.0.731_BODY_FINAL
+*/
+
 modded class PlayerBase
 {
-    protected ref Svyaznoy_Logic m_SvyaznoyLogic;
-    protected bool m_IsFirstBreathComplete = false;
-    protected float m_FirstBreathTimer = 10.0;
-    protected int m_CurrentMode = 1; // По умолчанию MODE_TRANSIT
-
-    override void Init()
-    {
-        super.Init();
-        // Проверка: мы работаем только с телом Некрасова (ID 76561198067049765)
-        if (GetSvyaznoyIdentity() && GetSvyaznoyIdentity().IsSvyaznoy(this)) 
-        {
-            m_SvyaznoyLogic = new Svyaznoy_Logic(this);
-            SetDisabled(true); // Запуск Этапа IV: Блокировка управления на 10 сек
-        }
-    }
+    // [ША: ДОПОЛНЕНИЕ РЕЕСТРА]
+    protected bool m_Svyaz_IsAdapting = true; // Статус [PRT-LIFE-100]
+    protected float m_Svyaz_InhaleTimer = 10.0;
+    protected float m_Svyaz_Stress = 0.0;
 
     override void OnUpdate(float timeslice)
     {
         super.OnUpdate(timeslice);
-        if (!m_SvyaznoyLogic) return;
-
-        // ЛОГИКА ЭТАПА IV: ПЕРВЫЙ ВДОХ
-        if (!m_IsFirstBreathComplete)
+        
+        // Идентификация Некрасова А.Н. (SteamID 76561198067049765)
+        if (GetIdentity() && GetIdentity().GetPlainId() == "76561198067049765")
         {
-            m_FirstBreathTimer -= timeslice;
-            // Директива 4: Если враг ближе 100м — просыпаемся мгновенно
-            if (m_SvyaznoyLogic.GetNearestThreatDist() < 100 || m_FirstBreathTimer <= 0) 
+            // Логика [ЭТАПА IV] - Первый вдох
+            if (m_Svyaz_IsAdapting)
             {
-                m_IsFirstBreathComplete = true;
-                SetDisabled(false);
-                m_SvyaznoyLogic.SetRadioState(true); // Выход в эфир
+                ExecuteFirstBreath(timeslice);
             }
+            else
+            {
+                // Если адаптация пройдена, управление передается в мозг
+                if (m_SvyaznoyLogic) m_SvyaznoyLogic.Update(timeslice, 1);
+            }
+        }
+    }
+
+    void ExecuteFirstBreath(float timeslice)
+    {
+        m_Svyaz_InhaleTimer -= timeslice;
+        
+        // [PRT-COMB-400] Проверка угрозы во время адаптации (REACTION_X)
+        if (CheckImmediateThreat()) 
+        {
+            m_Svyaz_IsAdapting = false;
+            m_Svyaz_Stress = 0.8;
+            SetDisabled(false); // Мгновенная разблокировка
+            Print("[СВЯЗНОЙ]: [REACTION_X] Мгновенное прерывание! Угроза обнаружена.");
             return;
         }
 
-        // ПЕРЕКЛЮЧАТЕЛЬ РЕЖИМОВ (PRT-CODE-500)
-        float threat = m_SvyaznoyLogic.GetNearestThreatDist();
-        if (threat < 50) m_CurrentMode = 3;      // MODE_REFLEX
-        else if (threat < 150) m_CurrentMode = 2; // MODE_SILENCE
-        else m_CurrentMode = 1;                  // MODE_TRANSIT
-
-        m_SvyaznoyLogic.Update(timeslice, m_CurrentMode);
+        if (m_Svyaz_InhaleTimer <= 0)
+        {
+            m_Svyaz_IsAdapting = false;
+            SetDisabled(false);
+            Print("[СВЯЗНОЙ]: [PRT-LIFE-100] Адаптация завершена. Статус: OK.");
+            // Здесь будет хук на запись первого рапорта в memory_logs.json
+        }
     }
-
-    override void OnEnterSafeZone() // PRT-SAFE-600
+    
+    bool CheckImmediateThreat()
     {
-        super.OnEnterSafeZone();
-        if (m_SvyaznoyLogic) m_SvyaznoyLogic.ActivateSafeZoneProtocol();
+        // Техническая заглушка для ШВ: здесь будет логика Raycast на поиск Man/Zombie < 100м
+        if (m_SvyaznoyLogic && m_SvyaznoyLogic.GetNearestThreatDist() < 100) return true;
+        return false; 
     }
 }
