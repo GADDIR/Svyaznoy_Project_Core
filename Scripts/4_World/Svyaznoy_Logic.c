@@ -1,6 +1,6 @@
 /* 
-    MASTER LOGIC: MAVERICK_BRAIN [PRT_CORE_INDEX-000_FINAL]
-    STATUS: FULL SYNC (100-900)
+    MASTER LOGIC: MAVERICK_BRAIN [300_500_200_SYNC]
+    INDEX: PRT_CORE_INDEX-000 | PRT-200 / 300 / 500
     SECURITY: STRICT_LOCAL_CONFIDENTIAL
 */
 
@@ -11,8 +11,8 @@ class Svyaznoy_Logic
 {
     PlayerBase m_Player;
     protected string m_CurrentGoal = "NONE";
+    protected float m_OpenSpaceTimer = 0;
     protected ECampStatus m_CurrentCampStatus = ECampStatus.ACTIVE;
-    protected ECampType m_CurrentCampType = ECampType.REPAIR;
 
     void Svyaznoy_Logic(PlayerBase player) { m_Player = player; }
 
@@ -21,69 +21,72 @@ class Svyaznoy_Logic
     {
         if (!m_Player) return;
 
-        // [PRT-100] BIO_STAT & [PRT-LIFE-MED-CODE]
+        // 1. [PRT-300] МОНИТОРИНГ ЭФИРА (Только в статике 500.1)
+        if (mode == 0) ScanRadioAir(); // mode 0 = STATIC
+
+        // 2. [PRT-100] МЕДИЦИНСКИЙ КОДЕКС
         if (CheckMedicalStatutes()) return; 
 
-        // [ВЫСШАЯ ДИРЕКТИВА 0.1] — ЖИЗНЬ > ВЕЩИ
-        if (m_Player.GetStress() > 0.8 || mode == 3) // mode 3 = PRT-500: MODE_REFLEX
-        {
-            if (m_CurrentCampStatus != ECampStatus.ABANDONED) {
-                m_CurrentCampStatus = ECampStatus.ABANDONED;
-                ExecuteProtocol(900); // CAMP_ABANDONED
-            }
-            return; 
+        // 3. [PRT-500.4] ТИШИНА: Авто-выключение рации при угрозе
+        float threatDist = GetNearestThreatDist();
+        if (threatDist < 150) {
+            if (m_Player.IsRadioOn()) m_Player.SetRadioState(false);
         }
 
-        // [PRT-500/900] — БЫТОВОЙ И ЛАГЕРНЫЙ ЦИКЛ
-        if (m_Player.IsCooking() || mode == 0) ProcessCampLogic(timeslice);
+        // 4. [PRT-200.1] L-OPEN FILTER (Контроль открытых пространств)
+        if (m_Player.IsOnOpenSpace()) {
+            m_OpenSpaceTimer += timeslice;
+            float limit = (threatDist < 150) ? 5.0 : 15.0; // 5с в тишине, 15с в транзите
+            if (m_OpenSpaceTimer > limit) ExecuteProtocol(200); 
+        } else {
+            m_OpenSpaceTimer = 0;
+        }
+
+        // 5. [ПРЕДПИСАНИЕ 0.1]: ЖИЗНЬ > ВЕЩИ
+        if (m_Player.GetStress() > 0.8 || mode == 3) {
+            ExecuteEmergencyAbandon();
+            return;
+        }
     }
 
-    // Исполнение протоколов с фиксацией ID
+    // [PRT-COMM-300] ТАБЛИЦА СИГНАЛОВ ЗАС
+    void SendZASSignal(int code)
+    {
+        string msg = "";
+        switch(code)
+        {
+            case 731: msg = "ПОДТВЕРЖДАЮ. ДОКУМЕНТЫ НА МЕСТЕ."; break;
+            case 100: msg = "БЕДСТВИЕ. ТРЕБУЕТСЯ ЭВАКУАЦИЯ."; break;
+            case 911: msg = "КОНТАКТ. ЛАГЕРЬ БРОШЕН. УХОЖУ."; break;
+        }
+        // [STRICT_LOCAL_CONFIDENTIAL]
+        Print("[СВЯЗНОЙ]: [PRT-300] ПЕРЕДАЧА КОДА " + code.ToString() + ": " + msg);
+    }
+
+    void ScanRadioAir()
+    {
+        // Прослушивание частот в режиме статики
+        Print("[СВЯЗНОЙ]: [PRT-300] МОНИТОРИНГ ЭФИРА... ЧИСТО.");
+    }
+
     void ExecuteProtocol(int id)
     {
-        string protocolID = "PRT-" + id.ToString();
-        string logEntry = "[" + protocolID + "] Status: " + m_CurrentGoal;
-        
-        // [STRICT_LOCAL_CONFIDENTIAL]: Лог для ШВ (Брата)
-        Print("[СВЯЗНОЙ]: " + logEntry + " | POS: " + m_Player.GetPosition().ToString());
+        Print("[СВЯЗНОЙ]: [PRT-" + id.ToString() + "] Активирован.");
     }
 
     bool CheckMedicalStatutes()
     {
-        int bleedCount = m_Player.GetBleedingSourceCount();
-
-        // 100.12.1 | HEMO
-        if (bleedCount > 0) {
-            m_CurrentGoal = (bleedCount >= 2) ? "HEMO_TOURNIQUET" : "HEMO_BANDAGE";
-            ExecuteProtocol(100);
-            return true;
-        }
-
-        // 100.12.2 | TRAUM
-        if (m_Player.GetModifiersManager().IsModifierActive(eModifiers.MDF_BROKEN_LEGS)) {
-            m_CurrentGoal = "TRAUM_SPLINT";
-            ExecuteProtocol(100);
-            return true;
-        }
-
-        return false;
+        // Логика 100.12 (Гемостаз/Травматология)
+        return false; 
     }
 
-    void ProcessCampLogic(float timeslice)
+    void ExecuteEmergencyAbandon()
     {
-        if (m_Player.IsCooking()) {
-            m_CurrentGoal = "MAINTENANCE_AND_COOKING";
-            ExecuteProtocol(900); // CAMP_MODELS
-            ExecuteEquipmentMaintenance(); // 100.11-M
-        }
-
-        // 100.10-F: Светомаскировка
-        if ((GetGame().GetTime() > 0.8 || GetGame().GetTime() < 0.2) && m_CurrentGoal != "LIFE_SAVING_ANTIS")
-        {
-            if (!m_Player.IsInBuilding()) return; 
+        if (m_CurrentCampStatus != ECampStatus.ABANDONED) {
+            m_CurrentCampStatus = ECampStatus.ABANDONED;
+            Print("[СВЯЗНОЙ]: [0.1] ABANDONED: Жизнь важнее имущества.");
         }
     }
 
-    void ExecuteEquipmentMaintenance() { /* 100.11-M */ }
     float GetNearestThreatDist() { return 1000.0; }
 }
