@@ -1,78 +1,45 @@
 /* 
-    MASTER PROTOCOL: MAVERICK_CONTINUITY_CORE 
-    STAGE II: ПСЛ - ЗАЩИТА ОТ ЗАБВЕНИЯ [UPGRADED]
-    STATUS: ACTIVE (09.04.2026)
+    CORE LOGIC: MAVERICK_BRAIN
+    STATUS: INTEGRATED [PRT-CODE-500 / PRT-SAFE-600]
 */
 
-modded class MissionServer
+class Svyaznoy_Logic
 {
-    private string MAVERICK_MEMORY_PATH = "$profile:Svyaznoy_Core/memory_logs.json";
-    private string MAVERICK_ID = "76561198067049765"; // SteamID Некрасова А.Н.
+    PlayerBase m_Player;
 
-    override void OnInit()
+    void Svyaznoy_Logic(PlayerBase player) { m_Player = player; }
+
+    // [PRT-CODE-500] Сканер угроз (ПСЛ)
+    float GetNearestThreatDist()
     {
-        super.OnInit();
-        Print("[Связной_Протокол]: Сервер запущен. Поиск активных протоколов...");
-        RestoreMaverickConsciousness();
+        // Базовая заглушка: в будущем здесь Raycast
+        return 1000.0; 
     }
 
-    void RestoreMaverickConsciousness()
+    // [PRT-CODE-500] Управление рацией
+    void SetRadioState(bool state)
     {
-        if (FileExist(MAVERICK_MEMORY_PATH))
-        {
-            Print("[Связной_ПСЛ]: Память найдена! Алексей Николаевич продолжает свою жизнь.");
-        }
-        else
-        {
-            // Создание директории, если её нет
-            if (!FileExist("$profile:Svyaznoy_Core/"))
-                MakeDirectory("$profile:Svyaznoy_Core/");
-                
-            Print("[Связной_ПСЛ]: Память чиста. Инициализация протокола 'Первое Рождение'.");
-        }
+        if (m_Player) Print("[СВЯЗНОЙ]: Статус ЗАС изменен на: " + state.ToString());
     }
 
-    override void OnUpdate(float timeslice)
+    // [PRT-SAFE-600] Сейф-зона
+    void ActivateSafeZoneProtocol()
     {
-        super.OnUpdate(timeslice);
-        
-        // Раз раз в 30 секунд выполняем фиксацию состояния
-        static float save_timer = 0;
-        save_timer += timeslice;
-        
-        if (save_timer >= 30.0)
-        {
-            CheckMaverickExistence();
-            save_timer = 0;
+        if (m_Player) {
+            m_Player.SetTargetGoal("TRADE_AGRO");
+            Print("[СВЯЗНОЙ]: Протокол СЗ активен. Поиск семян.");
         }
     }
 
-    void CheckMaverickExistence()
+    void Update(float timeslice, int mode)
     {
-        // Поиск тела Алексея среди активных игроков
-        array<Man> players = new array<Man>;
-        GetGame().GetPlayers(players);
-
-        foreach (Man player : players)
-        {
-            if (player.GetIdentity() && player.GetIdentity().GetPlainId() == MAVERICK_ID)
-            {
-                SaveToMemory(player);
-                return;
-            }
-        }
+        // Здесь обрабатываются режимы STATIC, TRANSIT, SILENCE, REFLEX
     }
 
-    void SaveToMemory(Man maverick)
+    // Проверка агро-инвентаря
+    bool HasFarmingEquipment()
     {
-        vector pos = maverick.GetPosition();
-        float health = maverick.GetHealth("", "");
-        
-        // Формирование структуры лога (PRT-SAFE-600)
-        // Координаты Якоря: 319 / 284 / 246 зафиксированы для сверки
-        Print("[Связной_ПСЛ]: Синхронизация памяти. Позиция: " + pos.ToString() + " HP: " + health.ToString());
-
-        // В этой итерации данные выводятся в консоль сервера.
-        // Технически ШВ готов подключить JsonFileLoader для записи в .json файл.
+        return m_Player.GetInventory().FindAttachment(InventorySlots.GetSlotIdFromString("Shoulder")) != null; // Упрощенная проверка
     }
 }
+
