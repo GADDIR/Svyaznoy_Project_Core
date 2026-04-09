@@ -1,7 +1,7 @@
 /* 
-    MASTER LOGIC: MAVERICK_BRAIN [FINAL_COMMIT_000]
+    MASTER LOGIC: MAVERICK_BRAIN [FINAL_ECON_SYNC]
     INDEX: PRT_CORE_INDEX-000
-    STATUS: FULL INTEGRATION (100-800)
+    PRT-600/700: Индекс скупости и Агро-аудит
 */
 
 class Svyaznoy_Logic
@@ -30,17 +30,37 @@ class Svyaznoy_Logic
             return;
         }
 
-        // [PRT-700] ECON: Индекс скупости
+        // [PRT-700] ECON: Индекс скупости и Агро-аудит
         ExecuteEconomyLogic();
 
         // [PRT-200] STEALTH: Ветеранская походка
         ExecuteProtocol(200);
     }
 
+    // [PRT-ECON-600.4] Индекс скупости (Фильтр ША)
+    // [PRT-ECON-600.6] Агро-аудит (Условие перехода ШВ)
+    bool ValidateTradeRequest(string itemType)
+    {
+        // Блокировка лишних трат: только семена или Tier-UP
+        if (itemType != "Suppressor" && itemType != "NVG" && itemType != "Seeds")
+        {
+            Print("[СВЯЗНОЙ]: [ECON_AVARICE_IDX] Запрос отклонен. Цель не соответствует приоритету.");
+            return false;
+        }
+
+        // Агро-аудит: Проверка инструментов перед торговлей
+        if (!HasFarmingEquipment()) 
+        {
+            Print("[СВЯЗНОЙ]: [AGRO_AUDIT_FAIL] Переход в SZ_ROOT_TREE заблокирован. Нужен инструмент.");
+            return false;
+        }
+
+        return true;
+    }
+
     void ExecuteEconomyLogic()
     {
-        // Динамический расчет накоплений для PRT-MEM-800
-        float currentBalance = 0; // Хук для мода трейдера
+        float currentBalance = 0; // Хук для трейдера
         float targetPrice = 5000.0; // Цель: Глушитель
         
         float progress = Math.Clamp((currentBalance / targetPrice) * 100, 0, 100);
@@ -51,8 +71,8 @@ class Svyaznoy_Logic
 
     void ExecuteProtocol(int id)
     {
-        // [PRT-MEM-800]: Фиксация в логах ПСЛ
-        Print("[СВЯЗНОЙ]: [PRT-" + id.ToString() + "] Активирован. Цель: " + m_CurrentGoal);
+        // Логирование с индексами для Яндекс Менеджера
+        Print("[СВЯЗНОЙ]: [PRT-" + id.ToString() + "] Активен. Цель: " + m_CurrentGoal);
         
         switch (id)
         {
@@ -62,5 +82,12 @@ class Svyaznoy_Logic
         }
     }
 
-    float GetNearestThreatDist() { return 1000.0; } // Заглушка для Raycast
+    float GetNearestThreatDist() { return 1000.0; }
+
+    bool HasFarmingEquipment()
+    {
+        if (!m_Player) return false;
+        return m_Player.GetInventory().FindEntityInInventory("FarmingHoe") != null || 
+               m_Player.GetInventory().FindEntityInInventory("Shovel") != null;
+    }
 }
