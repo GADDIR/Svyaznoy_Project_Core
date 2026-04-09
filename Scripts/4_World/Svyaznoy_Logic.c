@@ -1,93 +1,85 @@
 /* 
-    MASTER LOGIC: MAVERICK_BRAIN [FINAL_ECON_SYNC]
-    INDEX: PRT_CORE_INDEX-000
-    PRT-600/700: Индекс скупости и Агро-аудит
+    MASTER LOGIC: MAVERICK_BRAIN [SZ_ROOT_FULL_SYNC]
+    INDEX: PRT-600.1 / 600.4 / 600.6 / NVG_COMPAT
+    STATUS: FINAL_REVISION (10.04.2026)
 */
+
+enum ESZStage {
+    SAFETY_FIRST,
+    AGRO_AUDIT,
+    ECONOM_CHECK,
+    PREPARE_DEPARTURE
+}
 
 class Svyaznoy_Logic
 {
     PlayerBase m_Player;
+    protected ESZStage m_SZ_Stage = ESZStage.SAFETY_FIRST;
+    protected bool m_SZ_ReadyToLeave = false;
     protected string m_CurrentGoal = "NONE";
-    protected float m_ZASTimer = 0;
 
     void Svyaznoy_Logic(PlayerBase player) { m_Player = player; }
 
-    void Update(float timeslice, int mode)
+    // [600.1] Протокол SZ_ROOT_TREE (Алгоритм Сейф-зоны)
+    void Svyaznoy_SZ_Process(float timeslice)
     {
         if (!m_Player) return;
 
-        // [PRT-100] BIO_STAT: Высший приоритет
-        if (m_Player.GetStatEnergy().Get() < 200 || m_Player.IsBleeding())
+        switch(m_SZ_Stage)
         {
-            ExecuteProtocol(100); 
-            return; 
+            case ESZStage.SAFETY_FIRST: // 600.5
+                m_Player.SetStress(0.1);
+                // В будущем: if (ScanExits())
+                m_SZ_Stage = ESZStage.AGRO_AUDIT;
+                break;
+
+            case ESZStage.AGRO_AUDIT: // 600.6 (ПРИОРИТЕТ №0)
+                if (HasFarmingEquipment() && (HasSeeds() || m_Player.HasItem("Pumpkin"))) 
+                    m_SZ_Stage = ESZStage.ECONOM_CHECK;
+                else 
+                    m_CurrentGoal = "BUY_AGRO_TOOLS"; 
+                break;
+
+            case ESZStage.ECONOM_CHECK: // 600.4 (ИНДЕКС СКУПОСТИ)
+                ExecuteAvariceFilter();
+                m_SZ_Stage = ESZStage.PREPARE_DEPARTURE;
+                break;
+
+            case ESZStage.PREPARE_DEPARTURE: // 600.7
+                if (GetFoodCount() >= 3) m_SZ_ReadyToLeave = true;
+                break;
         }
-
-        // [PRT-400] REACTION_X: Боевой рефлекс
-        if (GetNearestThreatDist() < 50)
-        {
-            ExecuteProtocol(400);
-            return;
-        }
-
-        // [PRT-700] ECON: Индекс скупости и Агро-аудит
-        ExecuteEconomyLogic();
-
-        // [PRT-200] STEALTH: Ветеранская походка
-        ExecuteProtocol(200);
     }
 
-    // [PRT-ECON-600.4] Индекс скупости (Фильтр ША)
-    // [PRT-ECON-600.6] Агро-аудит (Условие перехода ШВ)
-    bool ValidateTradeRequest(string itemType)
+    // [600.4] Индекс скупости и [SZ_NVG_COMPATIBILITY]
+    void ExecuteAvariceFilter()
     {
-        // Блокировка лишних трат: только семена или Tier-UP
-        if (itemType != "Suppressor" && itemType != "NVG" && itemType != "Seeds")
+        // Блокировка трат, если Energy > 15% (200 ед)
+        if (m_Player.GetStatEnergy().Get() > 200) 
         {
-            Print("[СВЯЗНОЙ]: [ECON_AVARICE_IDX] Запрос отклонен. Цель не соответствует приоритету.");
-            return false;
-        }
-
-        // Агро-аудит: Проверка инструментов перед торговлей
-        if (!HasFarmingEquipment()) 
-        {
-            Print("[СВЯЗНОЙ]: [AGRO_AUDIT_FAIL] Переход в SZ_ROOT_TREE заблокирован. Нужен инструмент.");
-            return false;
-        }
-
-        return true;
-    }
-
-    void ExecuteEconomyLogic()
-    {
-        float currentBalance = 0; // Хук для трейдера
-        float targetPrice = 5000.0; // Цель: Глушитель
-        
-        float progress = Math.Clamp((currentBalance / targetPrice) * 100, 0, 100);
-        
-        if (progress >= 100) m_CurrentGoal = "UPGRADE_READY";
-        else m_CurrentGoal = "SAVING_FOR_ZAS";
-    }
-
-    void ExecuteProtocol(int id)
-    {
-        // Логирование с индексами для Яндекс Менеджера
-        Print("[СВЯЗНОЙ]: [PRT-" + id.ToString() + "] Активен. Цель: " + m_CurrentGoal);
-        
-        switch (id)
-        {
-            case 100: m_CurrentGoal = "BIO_EMERGENCY"; break;
-            case 200: m_CurrentGoal = "STEALTH_MOVE"; break;
-            case 400: m_CurrentGoal = "COMBAT_REFLEX"; break;
+            m_CurrentGoal = "TECH_UPGRADE_ONLY"; // Только Глушитель или ПНВ
+            CheckOpticsCompatibility();
         }
     }
 
-    float GetNearestThreatDist() { return 1000.0; }
-
-    bool HasFarmingEquipment()
+    void CheckOpticsCompatibility()
     {
-        if (!m_Player) return false;
-        return m_Player.GetInventory().FindEntityInInventory("FarmingHoe") != null || 
-               m_Player.GetInventory().FindEntityInInventory("Shovel") != null;
+        // Проверка прицела на совместимость с ПНВ (600.4)
+        EntityAI optics = m_Player.GetWeaponOptics(); 
+        if (optics && !optics.IsKindOf("NV_Capable_Base"))
+        {
+            Print("[СВЯЗНОЙ]: [600.4] Purchase: NVG_Goggles | Compatibility: NO_SCOPE_WARNING");
+        }
     }
+
+    // --- СИСТЕМНЫЕ МЕТОДЫ ---
+    void Update(float timeslice, int mode)
+    {
+        if (m_Player.IsInSafeZone()) Svyaznoy_SZ_Process(timeslice);
+        // Остальная логика Update...
+    }
+
+    bool HasFarmingEquipment() { return m_Player.GetInventory().FindEntityInInventory("FarmingHoe") != null || m_Player.GetInventory().FindEntityInInventory("Shovel") != null; }
+    bool HasSeeds() { return m_Player.GetInventory().FindEntityInInventory("ZucchiniSeeds") != null; }
+    int GetFoodCount() { return 0; } // Заглушка для PRT-600.7
 }
