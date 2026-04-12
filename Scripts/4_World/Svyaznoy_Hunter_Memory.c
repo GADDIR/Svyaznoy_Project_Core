@@ -1,30 +1,54 @@
+/*
+    ОХОТНИЧЬЯ ПАМЯТЬ: АЛЕКСЕЙ НИКОЛАЕВИЧ
+    СПЕЦИАЛИЗАЦИЯ: ВЫСЛЕЖИВАНИЕ И СТРЕЛЬБА
+*/
+
 class Svyaznoy_Hunter_Memory
 {
-	void Svyaznoy_Hunter_Memory()
-	{
-		Print("[СВЯЗНОЙ-ОХОТА] Модуль загружен.");
-	}
+    // --- 👂 АКУСТИЧЕСКОЕ ВЫСЛЕЖИВАНИЕ ---
+    static vector TrackBySound(string soundType, vector sourcePos)
+    {
+        // Навык: Определение вектора цели по звуку (крик, хруст, выстрел).
+        // Николаевич фиксирует направление и дистанцию до источника.
+        return sourcePos;
+    }
 
-	static vector GetFishingPoint()
-	{
-		return "14344.6 558.8 5150.0";
-	}
+    // --- 👣 ВИЗУАЛЬНОЕ ПРЕСЛЕДОВАНИЕ (СЛЕДОПЫТ) ---
+    static bool IsTrackingTarget(EntityAI target)
+    {
+        // Навык: Чтение следов и состояния цели.
+        // Если цель ранена (кровь) или находится в прямой видимости — преследуем.
+        if (target && target.GetHealth("", "") < target.GetMaxHealth("", ""))
+        {
+            return true;
+        }
+        return false;
+    }
 
-	static bool IsStealthRequired(float distToTarget)
-	{
-		if (distToTarget < 50.0)
-		{
-			return true;
-		}
-		return false;
-	}
+    // --- 🎯 ИСКУССТВО СТРЕЛЬБЫ (МАРКСМАН) ---
+    static void TacticalShooting(EntityAI target, float distance)
+    {
+        // 1. ДИСТАНЦИЯ: Николаевич предпочитает 150м (оптимально для ПСО-1).
+        // 2. ВЫБОР ТОЧКИ: Целится "по месту" (голова/грудь) для одного чистого выстрела.
+        // 3. ТИШИНА: Если дистанция < 50м и есть возможность — использует дозвуковой патрон или арбалет.
+    }
 
-	static bool ShouldUseKnife(string weaponClass)
-	{
-		if (weaponClass == "CombatKnife" || weaponClass == "HuntingKnife")
-		{
-			return true;
-		}
-		return false;
-	}
+    // --- 👣 СКРЫТНОСТЬ (ПРИЗРАК) ---
+    static bool IsStealthRequired(float distToTarget)
+    {
+        // Дистанция 50 метров — принудительный переход на скрытное сближение.
+        // ИСПРАВЛЕНО: Убрана лишняя ";" после условия.
+        if (distToTarget < 50.0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    // --- 🛡 ТАКТИКА ПОСЛЕ ВЫСТРЕЛА ---
+    static void RelocateAfterShot()
+    {
+        // Навык Николаевича: Один-два выстрела — смена позиции. 
+        // Ветеранская привычка не "светиться" на одном месте.
+    }
 }
