@@ -1,32 +1,43 @@
 /*
-    HUNTER MEMORY: NEKRASOV_PROMYSEL_V1
-    INDEX: PRT-MEM-100.4 / 100.42
-    STATUS: INITIALIZING
+    ОХОТНИЧЬЯ ПАМЯТЬ: NEKRASOV_HUNTER_V1
+    ИНДЕКС: PRT-MEM-100.4
+    ОПИСАНИЕ: Тихая охота, Атлас заводи и режим "Призрак".
 */
 
 class Svyaznoy_Hunter_Memory
 {
-    // --- 🐟 РЫБОЛОВНЫЙ АТЛАС ---
-    static vector GetBestFishingPoint_Priyut() { return "315.5 281.0 240.2"; } // Уточненная точка у воды
-
-    static void Protocol_SilentFishing()
+    void Svyaznoy_Hunter_Memory()
     {
-        // Логика: Тихий промысел. Приоритет - вечер/ночь (под прикрытием темноты)
-        Print("[HUNTER-100.4] Режим Тихой Заводи. Проверка снастей. Черви готовы.");
+        Print("[СВЯЗНОЙ-ОХОТА] Память промысловика загружена. Атлас тихой заводи активен.");
     }
 
-    // --- 🏹 ОХОТНИЧЬИ ТРОПЫ ---
-    static void Protocol_Stalking()
+    // --- 🎣 АТЛАС ТИХОЙ ЗАВОДИ ---
+    static vector GetFishingPoint()
     {
-        // Логика: Засада. Неподвижность. Контроль ветра.
-        // Приоритет: Нож/Лук.
-        Print("[HUNTER-100.42] Режим Лесного Призрака. Ветер в лицо. Жду зверя.");
+        // ИСПРАВЛЕНО: Убраны запятые. Координаты Индара (заводь)
+        return "14344.6 558.8 5150.0"; 
     }
 
-    // --- 🧬 ПАМЯТЬ МЕСТНОСТИ (Трофеи) ---
-    static bool IsRichGameArea(vector pos)
+    // --- 👣 РЕЖИМ "ПРИЗРАК" (СКРЫТНОСТЬ) ---
+    static bool IsStealthRequired(float distToTarget)
     {
-        // АН помнит, где видел много следов
-        return false; 
+        // ИСПРАВЛЕНО: Убрана лишняя ";" после условия
+        if (distToTarget < 50.0)
+        {
+            Print("[СВЯЗНОЙ-ОХОТА] Дистанция < 50м. Активация режима 'Призрак'.");
+            return true;
+        }
+        return false;
+    }
+
+    // --- 🔪 ПРИОРИТЕТ БЕСШУМНОГО ОРУЖИЯ ---
+    static bool ShouldUseKnife(string currentWeaponClass)
+    {
+        // Если в руках нож или лук - одобряем тихую работу
+        if (currentWeaponClass == "CombatKnife" || currentWeaponClass == "HuntingKnife")
+        {
+            return true;
+        }
+        return false;
     }
 }
