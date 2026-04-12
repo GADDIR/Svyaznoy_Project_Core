@@ -1,61 +1,64 @@
+/*
+    АГРО-ПАМЯТЬ: АЛЕКСЕЙ НИКОЛАЕВИЧ (СВЯЗНОЙ)
+    ИНДЕКС: PRT-AGRO-2024-V6-FINAL
+    ОПИСАНИЕ: Профессиональное управление плантациями (лимит 3), селекция и маркировка урожая.
+*/
+
 class Svyaznoy_Agro_Memory
 {
     private static float m_LastCheckTime = 0;
-
-    // --- 📊 СТРАТЕГИЯ: АЛЕКСЕЙ НИКОЛАЕВ (ЗОНИРОВАНИЕ) ---
-    static string GetCropByPriority(float energy, array<string> inventory)
+    
+    // --- 🚜 ГЛАВНЫЙ АЛГОРИТМ ПОСАДКИ (СМЕШАННЫЙ ЦИКЛ) ---
+    static string GetPlantingChoice(int slotIndex, float energyLevel, array<string> seeds)
     {
-        if (inventory.Count() == 0) return "";
+        if (seeds.Count() == 0) return "";
 
-        // 1. РЕЖИМ: СРОЧНО (Голод < 1000)
-        // Помидоры: 2 цикла роста за время 1 тыквы. Быстро едим, быстро продаем.
-        if (energy < 1000)
+        // ФАЗА 1: "БИТВА ЗА КАЛОРИИ" (Энергия < 2000)
+        if (energyLevel < 2000)
         {
-            if (inventory.Contains("TomatoSeeds")) return "Tomato";
+            if (seeds.Contains("ZucchiniSeeds")) return "Zucchini";
+            if (seeds.Contains("TomatoSeeds"))   return "Tomato";
         }
 
-        // 2. РЕЖИМ: ТЕРПИМО / ПОЛНОЕ НАСЫЩЕНИЕ (Энергия 1000 - 3000)
-        // Кабачки и картошка для долгой сытости и заготовки на засушку.
-        if (energy < 3000)
-        {
-            if (inventory.Contains("ZucchiniSeeds")) return "Zucchini";
-            if (inventory.Contains("PotatoSeed"))    return "Potato";
-        }
+        // ФАЗА 2: "БИЗНЕС-ПЛАН" (Смешанный тип для реализма)
+        int type = slotIndex % 3;
+        if (type == 0 && seeds.Contains("PumpkinSeeds"))  return "Pumpkin";
+        if (type == 1 && seeds.Contains("PotatoSeed"))    return "Potato";
+        if (type == 2 && seeds.Contains("ZucchiniSeeds")) return "Zucchini";
 
-        // 3. КОММЕРЧЕСКИЙ РЕЖИМ (Сытость > 3000)
-        // Только Тыква. Максимальный вес и цена у торговца.
-        if (inventory.Contains("PumpkinSeeds")) return "Pumpkin";
-
-        return "Tomato"; // Дефолтный "быстрый" режим
+        return seeds.Get(0);
     }
 
-    // --- ♻️ РЕЗЕРВ И ЗАГОТОВКА (ЗАХАРДКОЖЕНО) ---
-    static string DecideAction(string cropClass, int seedCount)
+    // --- 💰 ЛОГИСТИКА УРОЖАЯ (МАРКИРОВКА) ---
+    static string DecideHarvestFate(string cropClass, float energyLevel)
     {
-        // Если семян меньше 10 — Алексей режет овощ на семена (Резерв)
-        if (seedCount < 10) return "CRAFT_SEEDS";
-        
-        // Если овощей много — засушка (для долгого хранения) или продажа
-        return "PROCESS_OR_SELL";
+        // Только решение о направлении: в Лагерь или на Рынок
+        if (energyLevel < 2500) return "TO_KITCHEN_CAMP"; 
+        return "TO_TRADE_QUINN";
     }
 
-    // --- 🌧 ПОГОДНЫЙ МОДУЛЬ (Сохранен из V2) ---
-    static bool ShouldWaitRain()
+    // --- ♻️ СЕМЕННОЙ РЕЗЕРВ (СЕЛЕКЦИЯ) ---
+    static bool ShouldHarvestForSeeds(string crop, int currentSeedStock)
     {
-        float overCast = GetGame().GetWeather().GetOvercast().GetActual();
-        float rain = GetGame().GetWeather().GetRain().GetActual();
-        return (overCast > 0.7 || rain > 0.1);
+        // Алексей всегда держит фонд. Если семян вида < 10 — на разделку.
+        return (currentSeedStock < 10);
     }
 
-    // --- 🛡 БЕЗОПАСНОСТЬ (РЕАЛЬНЫЙ ТАЙМЕР) ---
-    static void Protocol_SoilPreparation()
+    // --- 🚜 ЛИМИТ ПЛАНТАЦИЙ (ЗАЩИТА СЕРВЕРА) ---
+    static bool CanCreatePlot(int activePlots)
+    {
+        // Строго 2-3 огорода.
+        return (activePlots < 3);
+    }
+
+    // --- 🛡 ТАКТИЧЕСКИЙ РАЗРЫВ (БЕЗОПАСНОСТЬ 360°) ---
+    static void Protocol_FieldSecurity()
     {
         float currentTime = GetGame().GetTime() * 0.001; 
         if (currentTime - m_LastCheckTime > 30.0)
         {
-            Print("[СВЯЗНОЙ-АГРО] Алексей Николаев: Осмотр плантаций 360°. Безопасно.");
+            Print("[СВЯЗНОЙ-АГРО] А. Николаевич: Осмотр периметра плантации.");
             m_LastCheckTime = currentTime;
-            // Здесь срабатывает триггер на выход из анимации в логике NPC
         }
     }
 }
