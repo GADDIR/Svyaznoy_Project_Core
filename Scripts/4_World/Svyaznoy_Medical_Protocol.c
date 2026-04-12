@@ -1,46 +1,49 @@
-/*
-    МЕДИЦИНСКИЙ ПРОТОКОЛ: NEKRASOV_MED_V1
-    ИНДЕКС: PRT-MEM-100.12
-    ОПИСАНИЕ: Гемостаз, реанимация и безусловное доверие к Gost_Hiba7.
-*/
-
 class Svyaznoy_Medical_Protocol
 {
-    // --- 🏗️ КОНСТРУКТОР ---
-    void Svyaznoy_Medical_Protocol()
-    {
-        Print("[СВЯЗНОЙ-МЕД] Модуль медицины загружен. Память Анны Петровны (Сектор 100.12) активна.");
-    }
+    // --- 📦 КОМПЛЕКТ АННЫ ПЕТРОВНЫ (ЛИМИТЫ) ---
+    // 1x Своя кровь, 1x Физраствор, 3x Бинта, 2x Эпи, 2x Морфи + Таблетки.
 
-    // --- 🏥 СТАТИОНАР (ПРОТОКОЛ ДОВЕРИЯ) ---
-    // Алексей позволяет лечить себя только проверенным людям
-    static bool IsTrustedMedic(string medicName)
+    static void CheckMedicalStock(PlayerBase self)
     {
-        // ИСПРАВЛЕНО: Убрана лишняя ";" после условия. 
-        // Теперь доверяем ТОЛЬКО Gost_Hiba7.
-        if (medicName == "Gost_Hiba7") 
+        // Алексей проверяет карманы ТТсКО по фронтовому стандарту
+        if (CountItems(self, "BandageDressing") < 3) 
+            Print("[СВЯЗНОЙ-МЕД] Николаич: Расходники тают. Нужно пополнить БК медицины.");
+
+        // СБОР РЕЗЕРВА: Своя кровь — лучший союзник
+        if (!HasItem(self, "BloodBagFull") && self.GetHealth("", "") > 95)
         {
-            Print("[СВЯЗНОЙ-МЕД] Доверие подтверждено: " + medicName + ". Допуск к оболочке разрешен.");
-            return true;
+            PrepareBloodReserve(self);
         }
-        
-        Print("[СВЯЗНОЙ-МЕД] ВНИМАНИЕ: Попытка контакта от неизвестного: " + medicName + ". Отказ.");
-        return false;
     }
 
-    // --- 🧬 РЕАНИМАЦИЯ (ПТСР-ФРАЗЫ) ---
-    // Автоматические триггеры при проведении тяжелых процедур
-    static void Protocol_Resuscitation()
-    {
-        // Эти фразы Алексей будет выдавать в чат/голос при сильном стрессе
-        Print("[СВЯЗНОЙ-МЕД] Критическая фаза! Протокол 'Кино-хирургия': ЗАЖИМ! ТАМПОН! РАЗРЯД!");
-    }
-
-    // --- 🚑 ПАМЯТЬ АННЫ ПЕТРОВНЫ ---
-    // Координаты точки, которую АН считает безопасным местом для лечения (Приют)
-    static vector GetHomeClinicPos() 
+    // --- 🚑 ФРОНТОВЫЕ НАВЫКИ (ДЕЙСТВИЯ) ---
+    static void PrepareBloodReserve(PlayerBase self) { /* Сбор крови BloodBagKit */ }
+    
+    static void CraftSplint(PlayerBase self) 
     { 
-        // ИСПРАВЛЕНО: Формат вектора приведен к стандарту DayZ "X Y Z"
-        return "308.4 283.2 260.4"; 
+        // Навык: 2 палки + скотч/тряпки. Окопная медицина.
     }
+
+    // --- 💊 ТЕРАПИЯ ПО СИМПТОМАМ ---
+    static void AutoTherapy(PlayerBase self)
+    {
+        // ТЕТРА: Инфекция/Холера
+        if (self.GetModifiersManager().IsModifierActive(eModifiers.MDF_CHOLERA))
+            UseMedicine(self, "TetracyclineMultiVitamin"); 
+
+        // УГОЛЬ: Отравление (грязная картошка или вода)
+        if (self.GetModifiersManager().IsModifierActive(eModifiers.MDF_POISONING))
+            UseMedicine(self, "CharcoalTablets");
+
+        // КОДЕИН: Боль мешает тактическому маневру
+        if (self.GetModifiersManager().IsModifierActive(eModifiers.MDF_PAIN))
+            UseMedicine(self, "CodeinePainkillers");
+            
+        // СПИРТ/ЙОД: Сепсис (Навык фронтового медика — прижечь вовремя)
+        if (self.GetModifiersManager().IsModifierActive(eModifiers.MDF_WOUND_INFECTION))
+            UseMedicine(self, "Iodine");
+    }
+
+    static int CountItems(PlayerBase self, string className) { return 0; }
+    static bool HasItem(PlayerBase self, string className) { return false; }
 }
