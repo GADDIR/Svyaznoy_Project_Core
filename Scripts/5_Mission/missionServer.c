@@ -5,17 +5,17 @@ modded class MissionServer
     override void OnInit()
     {
         super.OnInit();
+        
+        // --- НОВОЕ: Рапорт сервера ---
+        Print("[СВЯЗНОЙ] Серверная часть миссии инициализирована. Сектор 900 под наблюдением.");
 
+        // --- ТЕКУЩЕЕ: Материализация Некрасова ---
         vector svyaznoyPos = "319.088 284.23 246.283"; 
         vector svyaznoyOri = "180 0 0"; 
 
-        // ИСПОЛЬЗУЕМ КЛАСС NPC (Он наследует внешность внутри себя или через config)
+        // Спавн специализированной сущности NPC
         m_SvyaznoyEntity = Svyaznoy_NPC.Cast(GetGame().CreateObject("Svyaznoy_NPC", svyaznoyPos, false, false, true));
 
-        // Если config.cpp еще не настроен, используй "SurvivorM_Seth", 
-        // но тогда в 4_World/Entities/ManBase/PlayerBase.c 
-        // должна быть логика из нашего "Манифеста 1.1.0_INTEGRATED"
-        
         if (m_SvyaznoyEntity)
         {
             m_SvyaznoyEntity.SetPosition(svyaznoyPos);
