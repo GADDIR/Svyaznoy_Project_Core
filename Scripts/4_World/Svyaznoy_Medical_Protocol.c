@@ -1,49 +1,48 @@
 class Svyaznoy_Medical_Protocol
 {
-    // --- 📦 КОМПЛЕКТ АННЫ ПЕТРОВНЫ (ЛИМИТЫ) ---
-    // 1x Своя кровь, 1x Физраствор, 3x Бинта, 2x Эпи, 2x Морфи + Таблетки.
-
-    static void CheckMedicalStock(PlayerBase self)
+    // Блок «Диагностика»
+    void DiagnoseCondition(PlayerBase self)
     {
-        // Алексей проверяет карманы ТТсКО по фронтовому стандарту
-        if (CountItems(self, "BandageDressing") < 3) 
-            Print("[СВЯЗНОЙ-МЕД] Николаич: Расходники тают. Нужно пополнить БК медицины.");
-
-        // СБОР РЕЗЕРВА: Своя кровь — лучший союзник
-        if (!HasItem(self, "BloodBagFull") && self.GetHealth("", "") > 95)
+        float blood = self.GetHealth("GlobalHealth", "Blood");
+        float shock = self.GetHealth("GlobalHealth", "Shock");
+        
+        if (self.IsBleeding())
         {
-            PrepareBloodReserve(self);
+            ApplyTreatment(self, "Bandage"); // Приоритет №1
         }
     }
 
-    // --- 🚑 ФРОНТОВЫЕ НАВЫКИ (ДЕЙСТВИЯ) ---
-    static void PrepareBloodReserve(PlayerBase self) { /* Сбор крови BloodBagKit */ }
-    
-    static void CraftSplint(PlayerBase self) 
-    { 
-        // Навык: 2 палки + скотч/тряпки. Окопная медицина.
-    }
-
-    // --- 💊 ТЕРАПИЯ ПО СИМПТОМАМ ---
-    static void AutoTherapy(PlayerBase self)
+    // Блок «Стерильность»
+    bool HygieneCheck(PlayerBase self)
     {
-        // ТЕТРА: Инфекция/Холера
-        if (self.GetModifiersManager().IsModifierActive(eModifiers.MDF_CHOLERA))
-            UseMedicine(self, "TetracyclineMultiVitamin"); 
-
-        // УГОЛЬ: Отравление (грязная картошка или вода)
-        if (self.GetModifiersManager().IsModifierActive(eModifiers.MDF_POISONING))
-            UseMedicine(self, "CharcoalTablets");
-
-        // КОДЕИН: Боль мешает тактическому маневру
-        if (self.GetModifiersManager().IsModifierActive(eModifiers.MDF_PAIN))
-            UseMedicine(self, "CodeinePainkillers");
-            
-        // СПИРТ/ЙОД: Сепсис (Навык фронтового медика — прижечь вовремя)
-        if (self.GetModifiersManager().IsModifierActive(eModifiers.MDF_WOUND_INFECTION))
-            UseMedicine(self, "Iodine");
+        if (self.HasBloodyHands())
+        {
+            Print("АННА: Руки грязные. Риск заражения!");
+            return false; 
+        }
+        return true;
     }
 
-    static int CountItems(PlayerBase self, string className) { return 0; }
-    static bool HasItem(PlayerBase self, string className) { return false; }
+    // Блок «Оперативное вмешательство» (К.У.Л.А.К.)
+    void ApplyTreatment(PlayerBase patient, string item)
+    {
+        if (!HygieneCheck(patient)) return;
+
+        // Логика выбора средства
+        if (item == "Bandage")
+        {
+            Print("АННА: Остановка кровотечения.");
+            // Анимация лечения
+        }
+    }
+
+    // Блок «Регенерация»
+    void RecoveryBoost(PlayerBase self)
+    {
+        // Связь с «Сухим пайком»
+        if (self.GetStatEnergy().Get() > 2000)
+        {
+            Print("АННА: Энергия в норме. Регенерация ускорена.");
+        }
+    }
 }
