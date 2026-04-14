@@ -1,64 +1,86 @@
 /*
     АГРО-ПАМЯТЬ: АЛЕКСЕЙ НИКОЛАЕВИЧ (СВЯЗНОЙ)
-    ИНДЕКС: PRT-AGRO-2024-V6-FINAL
-    ОПИСАНИЕ: Профессиональное управление плантациями (лимит 3), селекция и маркировка урожая.
+    ИНДЕКС: PRT-AGRO-2024-V6-FINAL-INTEGRATED
+    ОПИСАНИЕ: База данных узлов, логика скрытого фермерства и селекция урожая.
 */
 
 class Svyaznoy_Agro_Memory
 {
+    private ref array<vector> m_GardenPoints;
+    private bool m_IsCompromised = false;
     private static float m_LastCheckTime = 0;
-    
-    // --- 🚜 ГЛАВНЫЙ АЛГОРИТМ ПОСАДКИ (СМЕШАННЫЙ ЦИКЛ) ---
+
+    void Svyaznoy_Agro_Memory()
+    {
+        m_GardenPoints = new array<vector>;
+    }
+
+    // --- 🌽 РЕЕСТР И ЛИМИТЫ (ПО ПАМЯТИ) ---
+    void RegisterGarden(vector position)
+    {
+        if (m_GardenPoints.Find(position) == -1 && CanCreatePlot(m_GardenPoints.Count()))
+        {
+            m_GardenPoints.Insert(position);
+            Print("[СВЯЗНОЙ-АГРО]: Новая точка зафиксирована: " + position.ToString());
+        }
+    }
+
+    static bool CanCreatePlot(int activePlots)
+    {
+        return (activePlots < 3); // Строгий лимит — 3 огорода
+    }
+
+    // --- 🚜 ВЫБОР КУЛЬТУРЫ (БАЗА ЗНАНИЙ) ---
     static string GetPlantingChoice(int slotIndex, float energyLevel, array<string> seeds)
     {
         if (seeds.Count() == 0) return "";
 
-        // ФАЗА 1: "БИТВА ЗА КАЛОРИИ" (Энергия < 2000)
+        // ФАЗА 1: Выживание (Голод)
         if (energyLevel < 2000)
         {
             if (seeds.Contains("ZucchiniSeeds")) return "Zucchini";
             if (seeds.Contains("TomatoSeeds"))   return "Tomato";
         }
 
-        // ФАЗА 2: "БИЗНЕС-ПЛАН" (Смешанный тип для реализма)
+        // ФАЗА 2: Бизнес (Pumpkin — валюта)
         int type = slotIndex % 3;
-        if (type == 0 && seeds.Contains("PumpkinSeeds"))  return "Pumpkin";
-        if (type == 1 && seeds.Contains("PotatoSeed"))    return "Potato";
-        if (type == 2 && seeds.Contains("ZucchiniSeeds")) return "Zucchini";
-
+        if (type == 0 && seeds.Contains("PumpkinSeeds")) return "Pumpkin";
         return seeds.Get(0);
     }
 
-    // --- 💰 ЛОГИСТИКА УРОЖАЯ (МАРКИРОВКА) ---
-    static string DecideHarvestFate(string cropClass, float energyLevel)
+    // --- 💰 ЛОГИСТИКА УРОЖАЯ ---
+    static string DecideHarvestFate(float energyLevel)
     {
-        // Только решение о направлении: в Лагерь или на Рынок
         if (energyLevel < 2500) return "TO_KITCHEN_CAMP"; 
         return "TO_TRADE_QUINN";
     }
 
-    // --- ♻️ СЕМЕННОЙ РЕЗЕРВ (СЕЛЕКЦИЯ) ---
-    static bool ShouldHarvestForSeeds(string crop, int currentSeedStock)
+    // --- 🛡 БЕЗОПАСНОСТЬ И КОНТРОЛЬ (РАЗУМЕНИЕ) ---
+    void CheckSecurity(PlayerBase self)
     {
-        // Алексей всегда держит фонд. Если семян вида < 10 — на разделку.
-        return (currentSeedStock < 10);
-    }
-
-    // --- 🚜 ЛИМИТ ПЛАНТАЦИЙ (ЗАЩИТА СЕРВЕРА) ---
-    static bool CanCreatePlot(int activePlots)
-    {
-        // Строго 2-3 огорода.
-        return (activePlots < 3);
-    }
-
-    // --- 🛡 ТАКТИЧЕСКИЙ РАЗРЫВ (БЕЗОПАСНОСТЬ 360°) ---
-    static void Protocol_FieldSecurity()
-    {
-        float currentTime = GetGame().GetTime() * 0.001; 
+        float currentTime = GetGame().GetTime() * 0.001;
+        
+        // Тактический разрыв: проверка каждые 30 секунд
         if (currentTime - m_LastCheckTime > 30.0)
         {
-            Print("[СВЯЗНОЙ-АГРО] А. Николаевич: Осмотр периметра плантации.");
             m_LastCheckTime = currentTime;
+            array<Man> players = new array<Man>;
+            GetGame().GetPlayers(players);
+
+            foreach (Man target : players)
+            {
+                if (target == self) continue;
+                if (vector.Distance(self.GetPosition(), target.GetPosition()) < 50.0)
+                {
+                    m_IsCompromised = true;
+                    Print("[СВЯЗНОЙ-АГРО]: Обнаружена бактерия! Плантация скомпрометирована.");
+                }
+            }
         }
+    }
+
+    bool NeedsWater()
+    {
+        return (GetGame().GetWeather().GetRain().GetActual() < 0.1);
     }
 }
