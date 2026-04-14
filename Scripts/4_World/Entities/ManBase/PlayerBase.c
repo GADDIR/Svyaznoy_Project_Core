@@ -1,18 +1,35 @@
 /* 
     CORE BODY: MAVERICK_PFТ [GLOBAL_SYNC]
-    INDEX: PRT_CORE_INDEX-000
-    REVISION: 1.0.731_FINAL
+    REVISION: 1.1.0_INTEGRATED
 */
 
 modded class PlayerBase
 {
+    ref Svyaznoy_Logic m_SvyaznoyLogic;
     protected bool m_Svyaz_IsAdapting = true; 
     protected float m_Svyaz_InhaleTimer = 10.0;
+
+    override void Init()
+    {
+        super.Init();
+
+        // [PRT-SYNC] Инициализация "Разума" только на сервере
+        if (GetGame().IsServer())
+        {
+            // Проверка: является ли данный объект Некрасовым А.Н.
+            // Примечание: GetIdentity() может быть NULL в самый момент Init, 
+            // поэтому логику создаем сразу, а проверку ID выносим в Update.
+            m_SvyaznoyLogic = new Svyaznoy_Logic(this);
+            Print("ШТАБ В: Разум АН материализован. Ожидание идентификации...");
+        }
+    }
 
     override void OnUpdate(float timeslice)
     {
         super.OnUpdate(timeslice);
         
+        if (!GetGame().IsServer()) return;
+
         // Идентификация Некрасова А.Н. (SteamID 76561198067049765)
         if (GetIdentity() && GetIdentity().GetPlainId() == "76561198067049765")
         {
@@ -24,7 +41,7 @@ modded class PlayerBase
             else if (m_SvyaznoyLogic)
             {
                 // Постоянный мониторинг через мастер-логику (100-700)
-                m_SvyaznoyLogic.Update(timeslice, 1);
+                m_SvyaznoyLogic.Update(timeslice);
             }
         }
     }
@@ -33,12 +50,10 @@ modded class PlayerBase
     {
         m_Svyaz_InhaleTimer -= timeslice;
 
-        // [PRT-COMB-400]: Экстренное прерывание при угрозе (REACTION_X)
-        if (m_SvyaznoyLogic && m_SvyaznoyLogic.GetNearestThreatDist() < 100) 
+        // [PRT-COMB-400]: Экстренное прерывание при угрозе
+        if (m_SvyaznoyLogic && m_SvyaznoyLogic.m_CombatReflex && m_SvyaznoyLogic.m_CombatReflex.GetNearestThreatDist() < 100) 
         {
             m_Svyaz_IsAdapting = false;
-            SetDisabled(false);
-            m_SvyaznoyLogic.ExecuteProtocol(400); // Мгновенный выход в бой
             Print("[СВЯЗНОЙ]: [PRT-400] Экстренное пробуждение! Угроза обнаружена.");
             return;
         }
@@ -47,11 +62,10 @@ modded class PlayerBase
         if (m_Svyaz_InhaleTimer <= 0)
         {
             m_Svyaz_IsAdapting = false;
-            SetDisabled(false);
             Print("[СВЯЗНОЙ]: [PRT-100] Адаптация завершена. Документы на месте.");
             
-            // Первый рапорт в память
-            if (m_SvyaznoyLogic) m_SvyaznoyLogic.ExecuteProtocol(100);
+            // Первый рапорт в память (Протокол 100)
+            if (m_SvyaznoyLogic) m_SvyaznoyLogic.OnStateChanged(100); 
         }
     }
 }
