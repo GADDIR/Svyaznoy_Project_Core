@@ -1,6 +1,7 @@
 /* 
     CORE BODY: MAVERICK_PFТ [GLOBAL_SYNC]
-    REVISION: 1.1.0_INTEGRATED
+    REVISION: 1.1.1_STABLE (INTEGRATED)
+    ОПИСАНИЕ: Физическое тело А.Н. Некрасова с логикой адаптации и ID-фильтром.
 */
 
 modded class PlayerBase
@@ -13,14 +14,11 @@ modded class PlayerBase
     {
         super.Init();
 
-        // [PRT-SYNC] Инициализация "Разума" только на сервере
+        // [PRT-SYNC] Инициализация разума на стороне сервера при рождении сущности
         if (GetGame().IsServer())
         {
-            // Проверка: является ли данный объект Некрасовым А.Н.
-            // Примечание: GetIdentity() может быть NULL в самый момент Init, 
-            // поэтому логику создаем сразу, а проверку ID выносим в Update.
             m_SvyaznoyLogic = new Svyaznoy_Logic(this);
-            Print("ШТАБ В: Разум АН материализован. Ожидание идентификации...");
+            Print("[ШТАБ В] Тело инициализировано. Ожидание входа Некрасова А.Н. в Сектор 900...");
         }
     }
 
@@ -28,44 +26,44 @@ modded class PlayerBase
     {
         super.OnUpdate(timeslice);
         
-        if (!GetGame().IsServer()) return;
-
-        // Идентификация Некрасова А.Н. (SteamID 76561198067049765)
-        if (GetIdentity() && GetIdentity().GetPlainId() == "76561198067049765")
+        // Критическая проверка: работаем только на сервере и только если у игрока загрузились документы (Identity)
+        if (!GetGame().IsServer() || !GetIdentity())
         {
-            // [PRT-LIFE-100]: Логика адаптации (Первый вдох)
+            return;
+        }
+
+        // Жесткая идентификация Некрасова А.Н. (SteamID 76561198067049765)
+        if (GetIdentity().GetPlainId() == "76561198067049765")
+        {
+            // [PRT-LIFE-100]: Период адаптации (Первый вдох)
             if (m_Svyaz_IsAdapting)
             {
                 ExecuteFirstBreath(timeslice);
             }
             else if (m_SvyaznoyLogic)
             {
-                // Постоянный мониторинг через мастер-логику (100-700)
+                // Передача управления в мастер-логику (Протоколы 100-700)
                 m_SvyaznoyLogic.Update(timeslice);
             }
         }
     }
 
+    // Метод постепенного пробуждения рефлексов
     void ExecuteFirstBreath(float timeslice)
     {
         m_Svyaz_InhaleTimer -= timeslice;
 
-        // [PRT-COMB-400]: Экстренное прерывание при угрозе
-        if (m_SvyaznoyLogic && m_SvyaznoyLogic.m_CombatReflex && m_SvyaznoyLogic.m_CombatReflex.GetNearestThreatDist() < 100) 
-        {
-            m_Svyaz_IsAdapting = false;
-            Print("[СВЯЗНОЙ]: [PRT-400] Экстренное пробуждение! Угроза обнаружена.");
-            return;
-        }
-
-        // Штатное завершение адаптации
+        // Штатное завершение адаптации через 10 секунд
         if (m_Svyaz_InhaleTimer <= 0)
         {
             m_Svyaz_IsAdapting = false;
-            Print("[СВЯЗНОЙ]: [PRT-100] Адаптация завершена. Документы на месте.");
+            Print("[СВЯЗНОЙ]: [PRT-100] Адаптация завершена. Алексей Николаевич на связи. Эфир чист.");
             
-            // Первый рапорт в память (Протокол 100)
-            if (m_SvyaznoyLogic) m_SvyaznoyLogic.OnStateChanged(100); 
+            // Сигнал в ядро об активации рабочего режима 501 (Статика/Мир)
+            if (m_SvyaznoyLogic)
+            {
+                m_SvyaznoyLogic.OnStateChanged(501); 
+            }
         }
     }
 }
