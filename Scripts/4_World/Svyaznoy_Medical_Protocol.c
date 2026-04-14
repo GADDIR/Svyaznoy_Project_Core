@@ -1,48 +1,78 @@
+/*
+    ПРОЕКТ: СВЯЗНОЙ
+    ОБЪЕКТ: Svyaznoy_Medical_Protocol (Модуль «АННА»)
+    ОПИСАНИЕ: Реализация медицинского алгоритма «К.У.Л.А.К.»
+*/
+
 class Svyaznoy_Medical_Protocol
 {
-    // Блок «Диагностика»
+    // --- 🧬 ДИАГНОСТИКА (DiagnoseCondition) ---
     void DiagnoseCondition(PlayerBase self)
     {
         float blood = self.GetHealth("GlobalHealth", "Blood");
         float shock = self.GetHealth("GlobalHealth", "Shock");
         
-        if (self.IsBleeding())
+        // ПРИОРИТЕТ №1: Гемостаз (Кровь)
+        if (self.GetBleedingSourceCount() > 0)
         {
-            ApplyTreatment(self, "Bandage"); // Приоритет №1
+            CheckBleeding(self);
+            ApplyTreatment(self, "Bandage"); 
+        }
+
+        // ПРИОРИТЕТ №2: Шок
+        if (shock < 50)
+        {
+            ManageShock(self);
         }
     }
 
-    // Блок «Стерильность»
+    // --- 🧼 СТЕРИЛЬНОСТЬ (HygieneCheck / Sanitize) ---
     bool HygieneCheck(PlayerBase self)
     {
         if (self.HasBloodyHands())
         {
-            Print("АННА: Руки грязные. Риск заражения!");
+            Print("[СВЯЗНОЙ/АННА]: Руки грязные. Риск сепсиса! Блокировка манипуляций.");
             return false; 
         }
         return true;
     }
 
-    // Блок «Оперативное вмешательство» (К.У.Л.А.К.)
+    // --- 🩸 АЛГОРИТМ «ГЕМОСТАЗ» ---
+    static void CheckBleeding(PlayerBase player)
+    {
+        int woundCount = player.GetBleedingSourceCount();
+        Print("[СВЯЗНОЙ]: Обнаружено кровотечение (" + woundCount + "). Протокол К.У.Л.А.К.: К - Кровь.");
+        
+        // Блокировка второстепенных задач для спасения жизни
+        player.GetInputController().SetDisabled(true); 
+    }
+
+    // --- 🩹 ОПЕРАТИВНОЕ ВМЕШАТЕЛЬСТВО (ApplyTreatment) ---
     void ApplyTreatment(PlayerBase patient, string item)
     {
         if (!HygieneCheck(patient)) return;
 
-        // Логика выбора средства
         if (item == "Bandage")
         {
-            Print("АННА: Остановка кровотечения.");
-            // Анимация лечения
+            Print("[СВЯЗНОЙ/АННА]: Остановка кровотечения. Использование перевязочных материалов.");
+            // Вызов анимации лечения (ActionBandageTarget/Self)
         }
     }
 
-    // Блок «Регенерация»
+    // --- ⚡ ШОКОВАЯ ТЕРАПИЯ ---
+    static void ManageShock(PlayerBase player)
+    {
+        Print("[СВЯЗНОЙ]: Высокий уровень шока. Требуется стабилизация.");
+        // Выбор: Эпинефрин или горизонтальное положение в укрытии
+    }
+
+    // --- 🍞 РЕГЕНЕРАЦИЯ (RecoveryBoost) ---
     void RecoveryBoost(PlayerBase self)
     {
-        // Связь с «Сухим пайком»
+        // Связь с «Сухим пайком» (Белая сытость)
         if (self.GetStatEnergy().Get() > 2000)
         {
-            Print("АННА: Энергия в норме. Регенерация ускорена.");
+            Print("[СВЯЗНОЙ/АННА]: Энергия в норме. Регенерация крови ускорена.");
         }
     }
 }
