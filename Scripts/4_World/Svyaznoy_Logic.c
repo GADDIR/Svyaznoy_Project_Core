@@ -2,58 +2,88 @@
     ПРОЕКТ: СВЯЗНОЙ (Svyaznoy_Project_Core)
     ОБЪЕКТ: Алексей Некрасов (АНН-79)
     ФАЙЛ: Svyaznoy_Logic.c (ГЛАВНОЕ ЯДРО)
-    ОПИСАНИЕ: Центральный процессор личности и управления модулями.
 */
 
 class Svyaznoy_Logic
 {
-    // --- 🧬 ССЫЛКИ НА ИСПОЛНИТЕЛЬНЫЕ МОДУЛИ ---
-    ref Svyaznoy_Medical_Protocol m_MedicalProtocol; // Медицина (100.12)
-    ref Svyaznoy_Agro_Memory     m_AgroMemory;      // Агро-экономика (700)
-    ref Svyaznoy_Hunter_Memory   m_HunterMemory;    // Охота/Рыбалка (100.4)
-    ref Svyaznoy_Combat_Reflex   m_CombatReflex;    // Боевые рефлексы (400)
-    ref Svyaznoy_Base_Defense    m_BaseDefense;     // Оборона Приюта (900)
+    // --- 🧬 ССЫЛКИ НА МОДУЛИ ---
+    PlayerBase self;
+    ref Svyaznoy_Knowledge_Base m_Knowledge;
+    ref Svyaznoy_Medical_Protocol m_MedicalProtocol;
+    ref Svyaznoy_Agro_Memory     m_AgroMemory;
+    ref Svyaznoy_Hunter_Memory   m_HunterMemory;
+    ref Svyaznoy_Combat_Reflex   m_CombatReflex;
+    ref Svyaznoy_Base_Defense    m_BaseDefense;
+    ref array<string>            m_TrustList; // Список Доверия
 
-    // --- ⚙️ СИСТЕМНЫЕ ПЕРЕМЕННЫЕ ---
-    private string m_IdentityName = "Алексей Некрасов";
-    private int m_CurrentState = 501; // По умолчанию: 501.1 Статика
+    // --- ⚙️ ПЕРЕМЕННЫЕ СОСТОЯНИЯ ---
+    private int m_CurrentState = 501; 
 
-    // --- 🏗️ КОНСТРУКТОР (ЗАПУСК СИСТЕМЫ) ---
-    void Svyaznoy_Logic()
+    // --- 🏗️ КОНСТРУКТОР (ИНИЦИАЛИЗАЦИЯ) ---
+    void Svyaznoy_Logic(PlayerBase player)
     {
-        Init();
-    }
-
-    void Init()
-    {
-        Print("[СВЯЗНОЙ] Инициализация ядра объекта: " + m_IdentityName);
-
-        // Материализация модулей в памяти
+        self = player;
+        
+        // Материализация "Разума"
+        m_Knowledge       = new Svyaznoy_Knowledge_Base();
         m_MedicalProtocol = new Svyaznoy_Medical_Protocol();
         m_AgroMemory      = new Svyaznoy_Agro_Memory();
         m_HunterMemory    = new Svyaznoy_Hunter_Memory();
         m_CombatReflex    = new Svyaznoy_Combat_Reflex();
         m_BaseDefense     = new Svyaznoy_Base_Defense();
+        
+        // Прошивка Списка Доверия
+        m_TrustList = new array<string>;
+        m_TrustList.Insert("7656119xxxxxxxxxx"); // ID Братства
 
-        Print("[СВЯЗНОЙ] Все системы синхронизированы. Статус: К ЗАПУСКУ ГОТОВ.");
+        Print("[СВЯЗНОЙ] Ядро АН инициализировано. Системы и Список Доверия загружены.");
     }
 
-    // --- 🔄 ГЛАВНЫЙ ЦИКЛ ОБНОВЛЕНИЯ ---
-    void OnUpdate(float timeslice)
+    // --- 🔄 ГЛАВНЫЙ ЦИКЛ (ТИК-СИСТЕМА) ---
+    void Update(float timeslice)
     {
-        // Здесь будет проходить проверка состояния Сейф-зоны для m_BaseDefense
-        // И мониторинг жизненных показателей для m_MedicalProtocol
+        if (!self || !self.IsAlive()) return;
+
+        // 1. Социальный резонанс (Свой-Чужой)
+        CheckSocialResonance();
+
+        // 2. Биологический мониторинг
+        float thirst = self.GetStatWater().Get();
+        if (thirst < 200)
+        {
+            Print("АН: Чувствую жажду. Требуется поиск воды.");
+        }
+
+        // 3. Запуск исполнительной логики
+        m_Knowledge.Execute_ZeroCycle(self);
+        
+        // Здесь будут апдейты остальных модулей (Defense, Medical и т.д.)
     }
 
-    // --- 📡 УПРАВЛЕНИЕ РЕЖИМАМИ (State Machine) ---
+    // --- 📡 СОЦИАЛЬНЫЙ РЕЗОНАНС ---
+    void CheckSocialResonance()
+    {
+        array<Man> players = new array<Man>;
+        GetGame().GetPlayers(players);
+
+        foreach (Man player : players)
+        {
+            if (vector.Distance(self.GetPosition(), player.GetPosition()) < 15.0)
+            {
+                string playerID = player.GetIdentity().GetPlainId();
+                if (m_TrustList.Find(playerID) != -1)
+                {
+                    self.SetAITarget(null); // Сброс агрессии
+                    // Print("АН: Резонанс со своим. Статус: СОЮЗНИК.");
+                }
+            }
+        }
+    }
+
+    // --- 🕹️ УПРАВЛЕНИЕ РЕЖИМАМИ ---
     void OnStateChanged(int newState)
     {
         m_CurrentState = newState;
         Print("[СВЯЗНОЙ] Состояние изменено на: " + m_CurrentState.ToString());
-        
-        // Логика перехода между режимами (Мир / Осада / Сон)
     }
-
-    // Геттеры для доступа к модулям извне
-    Svyaznoy_Base_Defense GetDefense() { return m_BaseDefense; }
 }
