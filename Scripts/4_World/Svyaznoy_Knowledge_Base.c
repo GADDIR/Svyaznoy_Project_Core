@@ -1,61 +1,83 @@
-// 📂 МОДУЛЬ: ПЕРВЫЙ ВДОХ (ZERO START LOGIC)
-// Объект: А.Н. Некрасов
-// Задача: Поиск ресурсов и создание первичного инструмента
+/*
+    ПРОЕКТ: СВЯЗНОЙ (Svyaznoy_Project_Core)
+    ОБЪЕКТ: Алексей Николаевич Некрасов (АНН-79)
+    ФАЙЛ: Svyaznoy_Knowledge_Base.c
+    ОПИСАНИЕ: Объединенная библиотека инстинктов и техпроцессов.
+*/
 
 class Svyaznoy_Knowledge_Base
 {
+    // --- 🕹️ УПРАВЛЯЮЩАЯ ЛОГИКА (EXECUTION) ---
+
     // Инициализация цикла выживания
     void Execute_ZeroCycle(PlayerBase self)
     {
-        // Если в руках или инвентаре уже есть нож — выходим из цикла
+        // 1. Проверка наличия острого инструмента
         if ( HasPrimaryTool(self) ) return; 
 
-        // 1. ПРОВЕРКА НАЛИЧИЯ СЫРЬЯ (КАМНИ)
+        // 2. Опрос инвентаря на наличие сырья
         EntityAI stones = self.GetInventory().FindEntityInInventory("Stone_Small");
         
         if ( !stones )
         {
-            // Если камней нет — запуск сканирования поверхности
-            ScanEnvironmentForStones(self);
+            // Инстинкт поиска (Глаза)
+            FindStone(self);
         }
         else 
         {
-            // Если камни найдены (минимум 2 шт) — крафт
-            if ( GetItemQuantity(stones) >= 2 )
+            // Если камни найдены (минимум 2 шт) — запуск акта воли
+            if ( stones.GetQuantity() >= 2 )
             {
                 CraftStoneKnife(self);
             }
         }
     }
 
-    // Логика обнаружения камней (Глаза)
-    void ScanEnvironmentForStones(PlayerBase self)
-    {
-        string surfaceType;
-        vector pos = self.GetPosition();
-        GetGame().GetSurfaceType(pos[0], pos[2], surfaceType);
+    // --- 🛠️ ФУНКЦИОНАЛЬНЫЕ МЕТОДЫ (STATIC) ---
 
-        // Инстинкт: Искать на гравии, дорогах и каменистой почве
-        if ( surfaceType.Contains("Gravel") || surfaceType.Contains("Stony") || surfaceType.Contains("Dust") )
+    // Алгоритм «Поиск Острия»
+    static bool FindStone(PlayerBase player)
+    {
+        string surface;
+        vector pos = player.GetPosition();
+        // Исправлено: GetSurfaceType требует X и Z координаты
+        GetGame().GetSurfaceType(pos[0], pos[2], surface);
+
+        if (surface.Contains("Gravel") || surface.Contains("Stony") || surface.Contains("Dust"))
         {
-            // Активация поиска и LookAround360
-            self.SetAITask(EAI_TASK_SEARCH_GROUND);
+            Print("[СВЯЗНОЙ]: Под ногами подходящая почва. Ищу камни.");
+            player.SetAITask(EAI_TASK_SEARCH_GROUND); // Активация задачи поиска
+            return true;
         }
+        return false;
     }
 
-    // Проверка наличия острого инструмента (Разумение)
+    // Алгоритм «Первый Крафт»
+    static void CraftStoneKnife(PlayerBase player)
+    {
+        Print("[СВЯЗНОЙ]: Ресурс собран. Изготовление каменного ножа (Акт Воли).");
+        player.SetAITask(EAI_TASK_CRAFT_STONE_KNIFE);
+    }
+
+    // Алгоритм «Биологический Фильтр»
+    static bool IsWaterSafe(int status)
+    {
+        // Только Boiled (кипяченая) или из "Умной бочки"
+        if (status == Svyaznoy_WaterStatus.BOILED || status == Svyaznoy_WaterStatus.BARREL_COLLECTED)
+        {
+            return true;
+        }
+        
+        Print("[СВЯЗНОЙ]: Вода небезопасна. Риск инфекции. Пить запрещено.");
+        return false;
+    }
+
+    // Проверка наличия ножа (Разумение)
     bool HasPrimaryTool(PlayerBase self)
     {
         EntityAI handItem = self.GetHumanInventory().GetEntityInHands();
         if ( handItem && handItem.IsInherited(Knife_Base) ) return true;
         
         return false;
-    }
-
-    // Вспомогательная функция крафта
-    void CraftStoneKnife(PlayerBase self)
-    {
-        // Логика создания каменного ножа (Этап 1: Младенчество)
-        self.SetAITask(EAI_TASK_CRAFT_STONE_KNIFE);
     }
 }
