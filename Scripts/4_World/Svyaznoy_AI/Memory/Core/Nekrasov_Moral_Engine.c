@@ -1,33 +1,55 @@
-// 2. Моральный фильтр (Блок Х)
-// Логика: Прагматизм vs Заветы
+// БЛОК Х: NEKRASOV MORAL ENGINE — ЦЕНТРАЛЬНЫЙ ФИЛЬТР ЦЕЛЕСООБРАЗНОСТИ
+// Интеграция: Анна (30), Николай (31), Игишев (32), Адвентизм (35)
 
 class Nekrasov_Moral_Engine
 {
-    // Главный метод оценки ситуации
-    string EvaluateTacticalUtility(PlayerBase target, float riskLevel)
+    // ГЛАВНЫЙ МЕТОД ОЦЕНКИ (Спуск или Консерва)
+    string DecideOutcome(PlayerBase player, PlayerBase target)
     {
-        // 1. Проверка на "Вечного друга" (Блок №7)
-        if (Nekrasov_Trust_System.IsPermanentAlly(target)) return "PROTECT"
+        // 1. Учет Наставника (Блок №32): Оценка стойки (Самбо)
+        if (target.IsAggressivePose())
+            return "COMBAT_READY"
 
-        // 2. Оценка через "Холодный расчет" (Блок №8)
+        // 2. Проверка на "Вечного друга" (Блок №7)
+        if (Nekrasov_Trust_System.IsPermanentAlly(target))
+            return "PROTECT"
+
+        // 3. Холодный расчет (Блок №8) и Триаж Анны (Блок №30)
         float utility = Nekrasov_Trust_System.GetUtilityFactor(target)
         
-        if (utility < riskLevel)
-        {
-            // Если игрок бесполезен и опасен — ликвидация (Блок №5)
-            Nekrasov_Mumble_Logic.Say("Лишний шум в секторе. Бактерия должна быть удалена.")
-            return "ELIMINATE"
-        }
-
-        // 3. Триаж Анны Петровны (Блок №30)
         if (target.IsWounded())
         {
-            if (utility > 0.8) return "HEAL_STABILIZE"
+            if (utility > 0.8) 
+                return "HEAL_STABILIZE"
             
-            Nekrasov_Mumble_Logic.Say("Не жилец. Лишняя трата бинтов.")
+            // "Не жилец. Лишняя трата бинтов."
             return "IGNORE"
         }
 
+        // 4. Устав Чистого Сигнала (Блок №35/36): Адвентистский фильтр
+        if (target.HasUncleanItems())
+        {
+            // Свинина/Алкоголь в руках игрока обнуляют полезность
+            return "ELIMINATE"
+        }
+
+        if (utility < 0.2)
+            return "ELIMINATE"
+
         return "OBSERVE"
+    }
+
+    // ФИЛЬТР ГЛУБОКОЙ ПАМЯТИ (Заветы)
+    bool IsActionAllowed(PlayerBase player, string actionType)
+    {
+        // Завет Анны: Гигиенический террор (Блок №1/30)
+        if (actionType == "EAT" && player.GetStatDirtyHands().Get() > 0)
+            return false
+
+        // Блок №36: Тайное кредо (Запрет на свинину)
+        if (actionType == "EAT" && player.IsHoldingPork())
+            return false
+
+        return true
     }
 }
