@@ -1,66 +1,74 @@
-// МОДУЛЬ КОРОТКОЙ ПАМЯТИ А.Н. НЕКРАСОВА (SESSION CACHE)
+// ПРОТОКОЛ №2: РЕЕСТР КОРОТКОЙ ПАМЯТИ (SESSION CACHE)
 class AN_ShortTermMemory
 {
-    // Объект хранения: название -> позиция
-    private ref map<string, vector> m_ItemsPositions;
-    // Таймеры хранения: название -> оставшееся время (сек)
-    private ref map<string, float>  m_ItemsTimers;
-    
-    private float m_PurgeDistance = 500.0; // Дистанция "забывания" из реестра
+    private ref map<string, vector> m_TaskPositions; // Координаты объектов
+    private ref map<string, float>  m_TaskTimers;    // TTL (Время жизни)
+    private string m_LastInterruptedAction;          // Принцип "Незавершенного дела"
 
     void AN_ShortTermMemory()
     {
-        m_ItemsPositions = new map<string, vector>;
-        m_ItemsTimers = new map<string, float>;
+        m_TaskPositions = new map<string, vector>
+        m_TaskTimers = new map<string, float>
     }
 
-    // ЗАПОМНИТЬ: Фиксация объекта (топор, Z за углом, рюкзак)
-    void Pin(string name, vector pos, float duration = 1800.0)
+    // Фиксация задачи (Бытовой фокус, Лут, Одежда)
+    void PinTask(string taskName, vector pos, float ttl)
     {
-        m_ItemsPositions.Set(name, pos);
-        m_ItemsTimers.Set(name, duration);
+        m_TaskPositions.Set(taskName, pos)
+        m_TaskTimers.Set(taskName, ttl)
     }
 
-    // ОБНОВЛЕНИЕ: Тик памяти (вызывается из PlayerBase или MainController)
-    void Tick(float timeslice, vector currentPos)
+    // ЛОГИКА ОБРАБОТКИ (Вызывается каждый тик)
+    void Tick(float timeslice, PlayerBase player)
     {
-        // 1. Проверка дистанции: ушел далеко — забыл всё
-        if (vector.Distance(currentPos, GetLastAnchor(currentPos)) > m_PurgeDistance)
-            ClearAll();
+        vector currentPos = player.GetPosition()
 
-        // 2. Проверка времени: суп остыл, косуля убежала
-        for (int i = 0; i < m_ItemsTimers.Count(); i++)
+        // ГЕО-ПРИВЯЗКА: Очистка при удалении > 500м
+        if (vector.Distance(currentPos, GetAnchor()) > 500)
+            ClearSession()
+
+        for (int i = 0; i < m_TaskTimers.Count(); i++)
         {
-            string key = m_ItemsTimers.GetKey(i);
-            float timeLeft = m_ItemsTimers.Get(key) - timeslice;
-
+            string key = m_TaskTimers.GetKey(i)
+            float timeLeft = m_TaskTimers.Get(key) - timeslice
+            
+            // Если срок истек (Мясо сгорело / Косуля ушла)
             if (timeLeft <= 0)
-                Unpin(key);
+            {
+                // Взаимодействие с Mumble (Ворчание)
+                player.SayMumble("Эх, память дырявая, проглядел " + key)
+                UnpinTask(key)
+            }
             else
-                m_ItemsTimers.Set(key, timeLeft);
+            {
+                m_TaskTimers.Set(key, timeLeft)
+            }
         }
     }
 
-    // Проверка: помнит ли Некрасов, где объект?
-    vector GetPosition(string name)
+    // ACTION RESUME: Что я делал до того, как начали стрелять?
+    void SetInterruptedAction(string action)
     {
-        if (m_ItemsPositions.Contains(name))
-            return m_ItemsPositions.Get(name);
-        
-        return "0 0 0";
+        m_LastInterruptedAction = action
     }
 
-    private void Unpin(string name)
+    string GetResumeAction()
     {
-        m_ItemsPositions.Remove(name);
-        m_ItemsTimers.Remove(name);
+        return m_LastInterruptedAction
     }
 
-    private void ClearAll()
+    private void UnpinTask(string name)
     {
-        m_ItemsPositions.Clear();
-        m_ItemsTimers.Clear();
+        m_TaskPositions.Remove(name)
+        m_TaskTimers.Remove(name)
     }
 
-    private vector GetLastAnchor(vector p) { return p; } // Заглушка под логику якоря
+    private void ClearSession()
+    {
+        m_TaskPositions.Clear()
+        m_TaskTimers.Clear()
+        m_LastInterruptedAction = ""
+    }
+
+    private vector GetAnchor() { return "0 0 0"; } // Здесь будет привязка к базе
 }
