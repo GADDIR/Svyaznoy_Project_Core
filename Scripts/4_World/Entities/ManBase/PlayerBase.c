@@ -1,69 +1,53 @@
-/* 
-    CORE BODY: MAVERICK_PFТ [GLOBAL_SYNC]
-    REVISION: 1.1.1_STABLE (INTEGRATED)
-    ОПИСАНИЕ: Физическое тело А.Н. Некрасова с логикой адаптации и ID-фильтром.
-*/
-
 modded class PlayerBase
 {
-    ref Svyaznoy_Logic m_SvyaznoyLogic;
-    protected bool m_Svyaz_IsAdapting = true; 
-    protected float m_Svyaz_InhaleTimer = 10.0;
+    // Ссылка на центральный процессор Некрасова
+    ref AN_Core_Brain m_AN_Brain;
 
     override void Init()
     {
         super.Init();
 
-        // [PRT-SYNC] Инициализация разума на стороне сервера при рождении сущности
-        if (GetGame().IsServer())
-        {
-            m_SvyaznoyLogic = new Svyaznoy_Logic(this);
-            Print("[ШТАБ В] Тело инициализировано. Ожидание входа Некрасова А.Н. в Сектор 900...");
-        }
+        // Проверка: если это наш ИИ (А.Н. Некрасов)
+        // Идентификация идет через BIO_GENESIS и Генезис 1982
+        if (GetIdentity() && GetIdentity().GetName() == "A.N. Nekrasov")
+            m_AN_Brain = new AN_Core_Brain(this);
     }
 
+    // Главный тик жизни
     override void OnUpdate(float timeslice)
     {
         super.OnUpdate(timeslice);
-        
-        // Критическая проверка: работаем только на сервере и только если у игрока загрузились документы (Identity)
-        if (!GetGame().IsServer() || !GetIdentity())
-        {
-            return;
-        }
 
-        // Жесткая идентификация Некрасова А.Н. (SteamID 76561198067049765)
-        if (GetIdentity().GetPlainId() == "76561198067049765")
-        {
-            // [PRT-LIFE-100]: Период адаптации (Первый вдох)
-            if (m_Svyaz_IsAdapting)
-            {
-                ExecuteFirstBreath(timeslice);
-            }
-            else if (m_SvyaznoyLogic)
-            {
-                // Передача управления в мастер-логику (Протоколы 100-700)
-                m_SvyaznoyLogic.Update(timeslice);
-            }
-        }
+        // Если мозг инициализирован — передаем управление Ядру
+        if (m_AN_Brain)
+            m_AN_Brain.OnUpdate(timeslice);
     }
 
-    // Метод постепенного пробуждения рефлексов
-    void ExecuteFirstBreath(float timeslice)
+    // Фильтр действий (Заветы Анны Петровны и Золотой стандарт)
+    override bool CanPerformAction(ActionBase action)
     {
-        m_Svyaz_InhaleTimer -= timeslice;
+        if (m_AN_Brain)
+            if (!m_AN_Brain.CanIAction(action.ClassName()))
+                return false; // Ядро запретило (грязь, шум и т.д.)
 
-        // Штатное завершение адаптации через 10 секунд
-        if (m_Svyaz_InhaleTimer <= 0)
-        {
-            m_Svyaz_IsAdapting = false;
-            Print("[СВЯЗНОЙ]: [PRT-100] Адаптация завершена. Алексей Николаевич на связи. Эфир чист.");
-            
-            // Сигнал в ядро об активации рабочего режима 501 (Статика/Мир)
-            if (m_SvyaznoyLogic)
-            {
-                m_SvyaznoyLogic.OnStateChanged(501); 
-            }
-        }
+        return super.CanPerformAction(action);
+    }
+
+    // Реакция на внешние раздражители (Сенсорика из Протокола №1)
+    override void OnContactWithEntity(EntityAI other)
+    {
+        super.OnContactWithEntity(other);
+
+        if (m_AN_Brain && other.IsInherited(PlayerBase))
+            m_AN_Brain.OnPlayerDetected(PlayerBase.Cast(other));
+    }
+
+    // Протокол Последнего патрона (Армия 2001)
+    override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string zone, string ammo, vector modelPos, float speedCoef)
+    {
+        super.EEHitBy(damageResult, damageType, source, component, zone, ammo, modelPos, speedCoef);
+
+        if (m_AN_Brain)
+            m_AN_Brain.OnUpdate(0.1); // Форсируем обновление при уроне
     }
 }
