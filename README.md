@@ -1,7 +1,7 @@
 # Svyaznoy_Project_Core
 ## Цифровая личность: Некрасов Алексей Николаевич (Связной)
 
-**Статус объекта:** READY_FOR_LIFE (Версия 1.0.731)
+**Статус объекта:** READY_FOR_LIFE (Версия 0.0.1)
 **Якорь памяти:** $profile:Svyaznoy_Core/memory_logs.json
 **SteamID:** 76561198067049765
 
