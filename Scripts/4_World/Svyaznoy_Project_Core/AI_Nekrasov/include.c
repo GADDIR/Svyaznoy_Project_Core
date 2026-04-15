@@ -13,6 +13,7 @@
 #include "Scripts/4_World/Svyaznoy_Project_Core/AI_Nekrasov/Nekrasov_Moral_Engine.c"
 #include "Scripts/4_World/Svyaznoy_Project_Core/AI_Nekrasov/Nekrasov_Dietary_Restrictions.c"
 #include "Scripts/4_World/Svyaznoy_Project_Core/AI_Nekrasov/Nekrasov_Food_Taboo.c"
+#include "Scripts/4_World/Svyaznoy_Project_Core/AI_Nekrasov/Nekrasov_Trade_Logic.c"
 
 // 4. Поведенческие и боевые узлы
 #include "Scripts/4_World/Svyaznoy_Project_Core/AI_Nekrasov/Nekrasov_Mumble_Logic.c"
