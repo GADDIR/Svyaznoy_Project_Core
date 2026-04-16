@@ -1,4 +1,4 @@
-// Nekrasov_FRAGILE_PARTICLES.C-ХРУПКИЕ ЧАСТИЦЫ ПАМЯТИ (БЛОК B)
+// Nekrasov_FRAGILE_PARTICLES.C — ХРУПКИЕ ЧАСТИЦЫ ПАМЯТИ (БЛОК B)
 // Интеграция: Блок №1 (1982) — Лилии, Тени, Фото у Ёлки.
 
 class AN_Fragile_Particles
