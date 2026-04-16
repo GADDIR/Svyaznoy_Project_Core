@@ -1,5 +1,5 @@
 // ПРОТОКОЛ №2: РЕЕСТР КОРОТКОЙ ПАМЯТИ (SESSION CACHE)
-class NEKRASOC_ShortTermMemory
+class NEKRASOV_ShortTermMemory
 {
     private ref map<string, vector> m_TaskPositions; // Координаты объектов
     private ref map<string, float>  m_TaskTimers;    // TTL (Время жизни)
