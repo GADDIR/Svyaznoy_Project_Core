@@ -1,4 +1,4 @@
-class Nekrasov_Moral_Engine {
+class NEKRASOV_Moral_Engine {
     // Наследие (Legacy)
     float m_AnnaStrictness = 0.9;   // Порядок
     float m_NikolayIntegrity = 1.0; // Честность
