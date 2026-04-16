@@ -1,7 +1,7 @@
 // NEKRASOV_AI_PERSONALITYCORE.C — ЦЕНТРАЛЬНЫЙ ПРОЦЕССОР СОСТОЯНИЙ
 // Интеграция: Блоки 1-36. Узел принятия финальных решений.
 
-class AI_PersonalityCore
+class NEKRASOV_AI_PERSONALITYCORE
 {
     // Ссылки на подсистемы разума
     private ref NEKRASOV_Identity      m_Identity
@@ -11,7 +11,7 @@ class AI_PersonalityCore
     // Текущее состояние (State Machine)
     private string m_ActiveState = "OBSERVATION"
 
-    void AI_PersonalityCore(PlayerBase player)
+    void NEKRASOV_AI_PERSONALITYCORE(PlayerBase player)
     {
         // Сборка Личности при спавне
         m_Identity = new NEKRASOV_Identity(player)
@@ -40,10 +40,10 @@ class AI_PersonalityCore
 
         // 4. ИСПОЛНЕНИЕ (Узлы поведения)
         if (m_ActiveState == "COMBAT")
-            Nekrasov_Combat_Tactics.OnCombatUpdate(player, target, player.GetTargetDistance())
+            NEKRASOV_Combat_Tactics.OnCombatUpdate(player, target, player.GetTargetDistance())
             
         if (m_ActiveState == "HOUSEHOLD")
-            Nekrasov_Lifestyle_Module.OnLifestyleUpdate(player, player.GetLocalTime())
+            NEKRASOV_Lifestyle_Module.OnLifestyleUpdate(player, player.GetLocalTime())
     }
 
     // ВЕРХОВНЫЙ ФИЛЬТР ДЕЙСТВИЙ (Блок Х)
