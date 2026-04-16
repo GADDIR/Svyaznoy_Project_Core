@@ -1,7 +1,7 @@
 // NEKRASOV_GENESIS_REGISTRY.C — ГЛОБАЛЬНЫЙ РЕЕСТР ВСЕХ БЛОКОВ ПАМЯТИ (1-36)
 // Суть: Математический фундамент личности.
 
-class Nekrasov_Genesis_Registry
+class NEKRASOV_Genesis_Registry
 {
     // Хранилище: ID Блока -> Значение/Коэффициент
     private static ref map<int, float> m_Data
