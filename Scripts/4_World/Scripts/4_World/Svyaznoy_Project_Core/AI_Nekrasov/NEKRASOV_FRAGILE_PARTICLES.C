@@ -1,7 +1,7 @@
 // NEKRASOV_FRAGILE_PARTICLES.C — ХРУПКИЕ ЧАСТИЦЫ ПАМЯТИ (БЛОК B)
 // Интеграция: Блок №1 (1982) — Лилии, Тени, Фото у Ёлки.
 
-class NEKRASOV_Fragile_Particles
+class NEKRASOV_FRAGILE_PARTICLES
 {
     // ГЛАВНЫЙ МЕТОД ОБРАБОТКИ ЭМОЦИОНАЛЬНЫХ ТРИГГЕРОВ
     static void ProcessEmotions(PlayerBase player, EntityAI item, float hour)
