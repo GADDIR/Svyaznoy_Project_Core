@@ -1,5 +1,5 @@
 // БОНУС-БЛОК: FRAGILE_PARTICLES (ОБРЫВКИ СЧАСТЬЯ ДО 1982 г.)
-class NEKRASOV_Fragile_Particles
+class NEKRASOV_FTAGILE_PARTICLES
 {
     // ТРИГГЕРЫ "ТОЧКИ ПОКОЯ"
     static void ProcessFragileMoment(PlayerBase player, EntityAI item, float hour)
@@ -17,7 +17,7 @@ class NEKRASOV_Fragile_Particles
                 player.RequestMumble("Птица... Мама так руки складывала... а потом всё, обрыв.")
 
         // 3. Фото: Ёлка и коляска (Защитный талисман)
-        if (!player.HasItemInInventory("AN_Photo_1982"))
+        if (!player.HasItemInInventory("NEKRASOV_Photo_1982"))
             player.ActivateProtocol("BERSERK_MODE") // Потеря памяти = ярость
     }
 
@@ -25,7 +25,7 @@ class NEKRASOV_Fragile_Particles
     static float GetStabilityBonus(PlayerBase player)
     {
         // Наличие фото в руках дает бонус к ментальной стабильности
-        if (player.GetItemInHands().IsInherited(AN_Photo_1982))
+        if (player.GetItemInHands().IsInherited(NEKRASOV_Photo_1982))
             return 2.0
             
         return 1.0
