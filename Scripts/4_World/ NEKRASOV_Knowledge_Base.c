@@ -1,11 +1,11 @@
 /*
     ПРОЕКТ: СВЯЗНОЙ (Svyaznoy_Project_Core)
-    ОБЪЕКТ: Алексей Николаевич Некрасов (АНН-79)
+    ОБЪЕКТ: НЕКРАСОВ АЛЕКСЕЙ НИКОЛАЕВИЧ (АНН-79)
     ФАЙЛ: Svyaznoy_Knowledge_Base.c
     ОПИСАНИЕ: Объединенная библиотека инстинктов и техпроцессов.
 */
 
-class Svyaznoy_Knowledge_Base
+class  NEKRASOV_Knowledge_Base
 {
     // --- 🕹️ УПРАВЛЯЮЩАЯ ЛОГИКА (EXECUTION) ---
 
@@ -63,7 +63,7 @@ class Svyaznoy_Knowledge_Base
     static bool IsWaterSafe(int status)
     {
         // Только Boiled (кипяченая) или из "Умной бочки"
-        if (status == Svyaznoy_WaterStatus.BOILED || status == Svyaznoy_WaterStatus.BARREL_COLLECTED)
+        if (status ==  NEKRASOV_WaterStatus.BOILED || status ==  NEKRASOV_WaterStatus.BARREL_COLLECTED)
         {
             return true;
         }
