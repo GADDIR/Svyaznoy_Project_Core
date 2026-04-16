@@ -3,7 +3,7 @@
     СПЕЦИАЛИЗАЦИЯ: ВЫСЛЕЖИВАНИЕ И СТРЕЛЬБА
 */
 
-class Svyaznoy_Hunter_Memory
+class  NEKRASOV_Hunter_Memory
 {
     // --- 👂 АКУСТИЧЕСКОЕ ВЫСЛЕЖИВАНИЕ ---
     static vector TrackBySound(string soundType, vector sourcePos)
