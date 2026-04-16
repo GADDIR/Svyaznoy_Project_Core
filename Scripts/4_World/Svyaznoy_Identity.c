@@ -25,7 +25,7 @@ modded class PlayerBase
         this.SetObjectTexture(0, "dz\\characters\\heads\\m_mirek\\data\\m_mirek_co.paa");
 
         // 2. Идентификация личности
-        this.SetPlayerName("Алексей Николаевич (Связной)");
+        this.SetPlayerName("НЕКРАСОВ АЛЕКСЕЙ НИКАЛАЕВИЧ (Связной)");
 
         // 3. Комплектация (Гарант снаряжения согласно протоколу)
         SetupMaverickPhysicalBody();
