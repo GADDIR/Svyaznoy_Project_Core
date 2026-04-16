@@ -31,7 +31,7 @@
 #include "Scripts/4_World/Svyaznoy_Project_Core/AI_Nekrasov/NEKRASOV_Radio_Tower_Sync.c" // ВНЕДРЕНО: Эфир
 
 // 7. ВИЗУАЛИЗАЦИЯ И ЭФФЕКТЫ
-#include "Scripts/4_World/Svyaznoy_Project_Core/AI_Nekrasov/AN_Fragile_Particles.c"
+#include "Scripts/4_World/Svyaznoy_Project_Core/AI_Nekrasov/NEKRASOV_FTAGILE_PARTICLES.c"
 
 // 8. ЦЕНТРАЛЬНЫЙ ПРОЦЕССОР (Brain Core)
 #include "Scripts/4_World/Svyaznoy_Project_Core/AI_Nekrasov/NEKRASOV_Brain_Core.c"
