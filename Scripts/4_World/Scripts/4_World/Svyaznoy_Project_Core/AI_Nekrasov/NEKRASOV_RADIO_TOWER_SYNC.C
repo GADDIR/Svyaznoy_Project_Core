@@ -1,17 +1,17 @@
 // NEKRASOV_RADIO_TOWER_SYNC.C — УЗЕЛ СРОДСТВА (ВЕРСИЯ 1.1)
 // Интеграция: Дед Николай (Блок 31) + Культура связи
 
-class Nekrasov_Radio_Tower_Sync
+class NEKRASOV_RADIO_TOWER_SYNC
 {
     private bool m_O_IsNetworkActive       // Статус глобальной сети
     private float m_O_SignalStrength        // Качество приема в Секторе 900
     private float m_O_ComfortLevel          // Уровень внутреннего спокойствия АН
     private ref array<vector> m_TowerPoints 
 
-    void Nekrasov_Radio_Tower_Sync()
+    void NEKRASOV_RADIO_TOWER_SYNC()
     {
         m_TowerPoints = new array<vector>
-        AN_BanovTransit_2021.ApplyBanovKnowledge(m_TowerPoints)
+        NEKRASOV_BanovTransit_2021.ApplyBanovKnowledge(m_TowerPoints)
     }
 
     void OnLogicTick(float timeslice, PlayerBase player)
@@ -21,14 +21,14 @@ class Nekrasov_Radio_Tower_Sync
         // МЕХАНИКА "СРОДСТВА" (Мотивация)
         if (!m_O_IsNetworkActive)
         {
-            // Мир "немой" — АН ощущает это как личный дискомфорт
+            // Мир "немой" — НЕКРАСОВ ощущает это как личный дискомфорт
             m_O_ComfortLevel = 0.2
             if (player.GetBehaviorMode() != "REPAIR_SIGNAL")
                 player.SetBehaviorMode("REPAIR_SIGNAL") 
         }
         else
         {
-            m_O_ComfortLevel = 1.0 // Сигнал чистый — АН спокоен
+            m_O_ComfortLevel = 1.0 // Сигнал чистый — НЕКРАСОВ спокоен
             EnableIntelLog(player)
         }
     }
