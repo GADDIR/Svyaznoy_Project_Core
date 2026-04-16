@@ -1,11 +1,11 @@
 /*
     ПРОЕКТ: СВЯЗНОЙ (Svyaznoy_Project_Core)
-    ОБЪЕКТ: Svyaznoy_Mumble_Memory
+    ОБЪЕКТ:  NEKRASOV_Mumble_Memory
     ОПИСАНИЕ: Расширенная база данных реплик и воспоминаний А.Н. Некрасова.
     ИНДЕКС: PRT-CHAR-500-EXTENDED
 */
 
-class Svyaznoy_Mumble_Memory
+class  NEKRASOV_Mumble_Memory
 {
     // --- 🎙️ СЛОВАРИ РЕПЛИК (ПОЛНЫЕ ВЕРСИИ) ---
     
