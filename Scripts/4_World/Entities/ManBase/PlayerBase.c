@@ -7,9 +7,9 @@ modded class PlayerBase
     {
         super.Init();
 
-        // Проверка: если это наш ИИ (А.Н. Некрасов)
+        // Проверка: если это наш ИИ (А.Н.НЕКРАСОВ)
         // Идентификация идет через BIO_GENESIS и Генезис 1982
-        if (GetIdentity() && GetIdentity().GetName() == "A.N. Nekrasov")
+        if (GetIdentity() && GetIdentity().GetName() == "A.N.NEKRASOV")
             m_NEKRASOV_Brain = new NEKRASOV_Core_Brain(this);
     }
 
