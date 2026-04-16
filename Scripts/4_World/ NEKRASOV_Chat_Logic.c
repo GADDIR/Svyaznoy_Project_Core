@@ -1,6 +1,6 @@
 /*
     ПРОЕКТ: СВЯЗНОЙ (Svyaznoy_Project_Core)
-    ОБЪЕКТ: Svyaznoy_Chat_Logic
+    ОБЪЕКТ:  NEKRASOV_Chat_Logic
     ВЕРСИЯ: 1.2 [ACOUSTIC & RADIO V2]
     ИНДЕКС: PRT-COMM-300.DIST
 */
