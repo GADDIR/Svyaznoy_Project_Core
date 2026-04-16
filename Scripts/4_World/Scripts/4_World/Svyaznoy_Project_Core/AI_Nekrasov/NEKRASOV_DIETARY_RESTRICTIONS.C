@@ -1,4 +1,4 @@
-NEKRASOV_DIETARY_RESTRICTIONS.C — ФИНАЛЬНАЯ СИНХРОНИЗАЦИЯ
+// NEKRASOV_DIETARY_RESTRICTIONS.C — ФИНАЛЬНАЯ СИНХРОНИЗАЦИЯ
 // Логика: Принципы важнее голода, но жизнь важнее принципов.
 
 class Nekrasov_Dietary_Restrictions
