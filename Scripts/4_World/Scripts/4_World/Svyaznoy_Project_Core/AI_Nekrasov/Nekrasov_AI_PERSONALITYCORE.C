@@ -4,9 +4,9 @@
 class AI_PersonalityCore
 {
     // Ссылки на подсистемы разума
-    private ref Nekrasov_Identity      m_Identity
-    private ref Nekrasov_Memory_Buffer m_Memory
-    private ref Nekrasov_Moral_Engine   m_Moral
+    private ref NEKRASOV_Identity      m_Identity
+    private ref NEKRASOV_Memory_Buffer m_Memory
+    private ref NEKRASOV_Moral_Engine   m_Moral
     
     // Текущее состояние (State Machine)
     private string m_ActiveState = "OBSERVATION"
@@ -14,9 +14,9 @@ class AI_PersonalityCore
     void AI_PersonalityCore(PlayerBase player)
     {
         // Сборка Личности при спавне
-        m_Identity = new Nekrasov_Identity(player)
-        m_Memory   = new Nekrasov_Memory_Buffer(player)
-        m_Moral    = new Nekrasov_Moral_Engine()
+        m_Identity = new NEKRASOV_Identity(player)
+        m_Memory   = new NEKRASOV_Memory_Buffer(player)
+        m_Moral    = new NEKRASOV_Moral_Engine()
         
         Nekrasov_Mumble_Logic.Say(player, "Система запущена. Сектор 900 под наблюдением.")
     }
