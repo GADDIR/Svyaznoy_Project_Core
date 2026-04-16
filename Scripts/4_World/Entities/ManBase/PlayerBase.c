@@ -1,7 +1,7 @@
 modded class PlayerBase
 {
     // Ссылка на центральный процессор Некрасова
-    ref AN_Core_Brain m_AN_Brain;
+    ref NEKRASOV_Core_Brain m_NEKRASOV_Brain;
 
     override void Init()
     {
@@ -10,7 +10,7 @@ modded class PlayerBase
         // Проверка: если это наш ИИ (А.Н. Некрасов)
         // Идентификация идет через BIO_GENESIS и Генезис 1982
         if (GetIdentity() && GetIdentity().GetName() == "A.N. Nekrasov")
-            m_AN_Brain = new AN_Core_Brain(this);
+            m_NEKRASOV_Brain = new NEKRASOV_Core_Brain(this);
     }
 
     // Главный тик жизни
@@ -19,15 +19,15 @@ modded class PlayerBase
         super.OnUpdate(timeslice);
 
         // Если мозг инициализирован — передаем управление Ядру
-        if (m_AN_Brain)
-            m_AN_Brain.OnUpdate(timeslice);
+        if (m_NEKRASOV_Brain)
+            m_NEKRASOV_Brain.OnUpdate(timeslice);
     }
 
     // Фильтр действий (Заветы Анны Петровны и Золотой стандарт)
     override bool CanPerformAction(ActionBase action)
     {
-        if (m_AN_Brain)
-            if (!m_AN_Brain.CanIAction(action.ClassName()))
+        if (m_NEKRASOV_Brain)
+            if (!m_NEKRASOV_Brain.CanIAction(action.ClassName()))
                 return false; // Ядро запретило (грязь, шум и т.д.)
 
         return super.CanPerformAction(action);
@@ -38,8 +38,8 @@ modded class PlayerBase
     {
         super.OnContactWithEntity(other);
 
-        if (m_AN_Brain && other.IsInherited(PlayerBase))
-            m_AN_Brain.OnPlayerDetected(PlayerBase.Cast(other));
+        if (m_NEKRASOV_Brain && other.IsInherited(PlayerBase))
+            m_NEKRASOV_Brain.OnPlayerDetected(PlayerBase.Cast(other));
     }
 
     // Протокол Последнего патрона (Армия 2001)
@@ -47,7 +47,7 @@ modded class PlayerBase
     {
         super.EEHitBy(damageResult, damageType, source, component, zone, ammo, modelPos, speedCoef);
 
-        if (m_AN_Brain)
-            m_AN_Brain.OnUpdate(0.1); // Форсируем обновление при уроне
+        if (m_NEKRASOV_Brain)
+            m_NEKRASOV_Brain.OnUpdate(0.1); // Форсируем обновление при уроне
     }
 }
