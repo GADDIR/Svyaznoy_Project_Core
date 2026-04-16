@@ -10,11 +10,11 @@ class NEKRASOV_Core_Brain_1
     private ref NEKRASOV_PersistentMemory     m_Persistent
     
     // Владелец мозга
-    private PlayerBase m_Nekrasov
+    private PlayerBase m_NEKRASOV
 
     void NEKRASOV_Core_Brain_1(PlayerBase player)
     {
-        m_Nekrasov = player
+        m_NEKRASOV = player
         
         // Инициализация всех слоев
         m_Memory     = new NEKRASOV_MemoryController(player)
@@ -30,13 +30,13 @@ class NEKRASOV_Core_Brain_1
     void OnUpdate(float timeslice)
     {
         // 1. Опрос сенсоров (Экстренная память)
-        m_Memory.OnUpdate(timeslice, m_Nekrasov)
+        m_Memory.OnUpdate(timeslice, m_NEKRASOV)
 
         // 2. Проверка инстинктов (Протокол №1 из Блока 5)
-        AN_MilitaryService_2001.ExecuteTacticalOverride(m_NEKRASOV)
+        NEKRASOV_MilitaryService_2001.ExecuteTacticalOverride(m_NEKRASOV)
 
         // 3. Автономный аудит (Блок 6)
-        AN_WorkExperience_2015.PerformInventoryAudit(m_NEKRASOV)
+        NEKRASOV_WorkExperience_2015.PerformInventoryAudit(m_NEKRASOV)
     }
 
     // ПРИНЯТИЕ РЕШЕНИЙ (Фильтр через Золотой Стандарт)
