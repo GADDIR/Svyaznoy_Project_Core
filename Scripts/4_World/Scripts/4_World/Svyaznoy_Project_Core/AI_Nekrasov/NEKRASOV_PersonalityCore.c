@@ -1,22 +1,22 @@
-//  Nekrasov_PersonalityCore.c — ЦЕНТРАЛЬНЫЙ ПРОЦЕССОР СОСТОЯНИЙ
+//  NEKRASOV_PersonalityCore.c — ЦЕНТРАЛЬНЫЙ ПРОЦЕССОР СОСТОЯНИЙ
 // Интеграция: Блоки 1-36. Узел принятия финальных решений.
-class AI_PersonalityCore
+class NEKRASOV_PersonalityCore
 {
     // Ссылки на подсистемы разума
-    private ref Nekrasov_Identity      m_Identity
-    private ref Nekrasov_Memory_Buffer m_Memory
-    private ref Nekrasov_Moral_Engine   m_Moral
+    private ref NEKRASOV_Identity      m_Identity
+    private ref NEKRASOV_Memory_Buffer m_Memory
+    private ref NEKRASOV_Moral_Engine   m_Moral
     
     // Текущее состояние (State Machine)
     private string m_ActiveState = "OBSERVATION"
     void AI_PersonalityCore(PlayerBase player)
     {
         // Сборка Личности при спавне
-        m_Identity = new Nekrasov_Identity(player)
-        m_Memory   = new Nekrasov_Memory_Buffer(player)
-        m_Moral    = new Nekrasov_Moral_Engine()
+        m_Identity = new NEKRASOV_Identity(player)
+        m_Memory   = new NEKRASOV_Memory_Buffer(player)
+        m_Moral    = new NEKRASOV_Moral_Engine()
         
-        Nekrasov_Mumble_Logic.Say(player, "Система запущена. Сектор 900 под наблюдением.")
+        NEKRASOV_Mumble_Logic.Say(player, "Система запущена. Сектор 900 под наблюдением.")
     }
     // ГЛАВНЫЙ ЦИКЛ МЫШЛЕНИЯ
     void OnUpdate(float timeslice, PlayerBase player)
@@ -34,10 +34,10 @@ class AI_PersonalityCore
             m_ActiveState = "OBSERVATION"
         // 4. ИСПОЛНЕНИЕ (Узлы поведения)
         if (m_ActiveState == "COMBAT")
-            Nekrasov_Combat_Tactics.OnCombatUpdate(player, target, player.GetTargetDistance())
+            NEKRASOV_Combat_Tactics.OnCombatUpdate(player, target, player.GetTargetDistance())
             
         if (m_ActiveState == "HOUSEHOLD")
-            Nekrasov_Lifestyle_Module.OnLifestyleUpdate(player, player.GetLocalTime())
+            NEKRASOV_Lifestyle_Module.OnLifestyleUpdate(player, player.GetLocalTime())
     }
     // ВЕРХОВНЫЙ ФИЛЬТР ДЕЙСТВИЙ (Блок Х)
     bool CanPerformAction(PlayerBase player, string actionName)
@@ -49,12 +49,12 @@ class AI_PersonalityCore
         return true
     }
 }
-‎Scripts/4_World/Svyaznoy_Project_Core/AI_Nekrasov/AN_Fragile_Particles.c‎
+‎Scripts/4_World/Svyaznoy_Project_Core/AI_Nekrasov/NEKRASOV_FRAGILE_PARTICLES.c‎
 Original file line number	Diff line number	Diff line change
 @@ -1,33 +0,0 @@
-// AN_FRAGILE_PARTICLES.C — ХРУПКИЕ ЧАСТИЦЫ ПАМЯТИ (БЛОК B)
+// NEKRASOV_FRAGILE_PARTICLES.C — ХРУПКИЕ ЧАСТИЦЫ ПАМЯТИ (БЛОК B)
 // Интеграция: Блок №1 (1982) — Лилии, Тени, Фото у Ёлки.
-class AN_Fragile_Particles
+class NEKRASOV_FRAGILE_PARTICLES
 {
     // ГЛАВНЫЙ МЕТОД ОБРАБОТКИ ЭМОЦИОНАЛЬНЫХ ТРИГГЕРОВ
     static void ProcessEmotions(PlayerBase player, EntityAI item, float hour)
@@ -69,7 +69,7 @@ class AN_Fragile_Particles
         if (hour >= 20.0 && hour <= 22.0)
             if (player.IsNearFireplace())
                 player.RequestFlashback("SHADOW_THEATER")
-                Nekrasov_Mumble_Logic.Say(player, "Птица... Мама так руки складывала... а потом всё, обрыв.")
+                NEKRASOV_Mumble_Logic.Say(player, "Птица... Мама так руки складывала... а потом всё, обрыв.")
         // 3. ЗАЩИТНЫЙ ТАЛИСМАН (Фото 1982 года)
         if (!player.HasItemInInventory("AN_Photo_1982"))
             // Если фото украдено или потеряно — режим берсерка
@@ -81,11 +81,11 @@ class AN_Fragile_Particles
         return "ERROR: MEMORY_FRAGMENT_1982_NOT_FOUND"
     }
 }
-‎Scripts/4_World/Svyaznoy_Project_Core/AI_Nekrasov/Nekrasov_Ancestors_Legacy.c‎
+‎Scripts/4_World/Svyaznoy_Project_Core/AI_Nekrasov/NEKRASOV_Ancestors_Legacy.c‎
 Original file line number	Diff line number	Diff line change
 @@ -1,39 +0,0 @@
 // БЛОК №30 и №31: ИСТОКИ (АННА ПЕТРОВНА И НИКОЛАЙ, 1923–1955)
-class AN_Ancestors_Legacy
+class NEKRASOV_Ancestors_Legacy
 {
     // БЛОК №30: АННА ПЕТРОВНА (ИСТОК ГИГИЕНИЧЕСКОГО ТЕРРОРА)
     // 1941–1945: Санитарка в прифронтовом госпитале
