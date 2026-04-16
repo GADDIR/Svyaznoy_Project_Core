@@ -18,7 +18,7 @@ class NEKRASOV_AI_PERSONALITYCORE
         m_Memory   = new NEKRASOV_Memory_Buffer(player)
         m_Moral    = new NEKRASOV_Moral_Engine()
         
-        Nekrasov_Mumble_Logic.Say(player, "Система запущена. Сектор 900 под наблюдением.")
+        NEKRASOV_Mumble_Logic.Say(player, "Система запущена. Сектор 900 под наблюдением.")
     }
 
     // ГЛАВНЫЙ ЦИКЛ МЫШЛЕНИЯ
