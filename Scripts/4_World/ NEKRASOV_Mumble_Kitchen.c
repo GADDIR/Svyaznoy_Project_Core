@@ -5,7 +5,7 @@
     SOURCE: Дед Николай (Синявино-2)
 */
 
-class Svyaznoy_Mumble_Kitchen 
+class  NEKRASOV_Mumble_Kitchen 
 {
     static ref array<string> m_Phrases = {
         // --- Наставления деда Николая ---
