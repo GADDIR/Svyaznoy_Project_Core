@@ -1,5 +1,6 @@
 markdown
-# ЛИЧНОЕ ДЕЛО ВОСПИТАННИКА (Архив ДОУ №Х).Cleanup kindergarten file
+Cleanup kindergarten file
+# ЛИЧНОЕ ДЕЛО ВОСПИТАННИКА (Архив ДОУ №Х)
 ## Идентификатор объекта: AN_NEKRASOV_79
 ## Период: 1982 — 1986 гг. (Гатчина)
 
