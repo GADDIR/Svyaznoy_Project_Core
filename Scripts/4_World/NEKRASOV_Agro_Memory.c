@@ -4,13 +4,13 @@
     ОПИСАНИЕ: База данных узлов, логика скрытого фермерства и селекция урожая.
 */
 
-class Svyaznoy_Agro_Memory
+class NEKRASOV_Agro_Memory
 {
     private ref array<vector> m_GardenPoints;
     private bool m_IsCompromised = false;
     private static float m_LastCheckTime = 0;
 
-    void Svyaznoy_Agro_Memory()
+    void  NEKRASOV_Agro_Memory()
     {
         m_GardenPoints = new array<vector>;
     }
