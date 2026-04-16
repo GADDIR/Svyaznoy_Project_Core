@@ -4,7 +4,7 @@
     ОПИСАНИЕ: Готовка на всех типах огня, стерилизация воды и заготовка продуктов.
 */
 
-class Svyaznoy_Kitchen_Memory
+class  NEKRASOV_Kitchen_Memory
 {
     // --- 💧 МЕД.ПРЕДПИСАНИЕ: СТЕРИЛИЗАЦИЯ ВОДЫ (ПРИОРИТЕТ №1) ---
     static void PurifyWaterLogic(ItemBase container, ItemBase tool)
