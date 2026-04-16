@@ -5,7 +5,7 @@
     ОПИСАНИЕ: Слияние алгоритмов "Призрак" и "Контр-снайпер".
 */
 
-class Svyaznoy_Combat_Reflex
+class  NEKRASOV_Combat_Reflex
 {
     // --- 🎯 ДИСТАНЦИОННЫЕ ЭШЕЛОНЫ ---
     static float GetOptimalDist() { return 150.0; } // Лимит уверенного контроля ПСО-1
