@@ -1,0 +1,58 @@
+// NEKRASOV_AI_PERSONALITYCORE.C — ЦЕНТРАЛЬНЫЙ ПРОЦЕССОР СОСТОЯНИЙ
+// Интеграция: Блоки 1-36. Узел принятия финальных решений.
+
+class NEKRASOV_AI_PERSONALITYCORE
+{
+    // Ссылки на подсистемы разума
+    private ref NEKRASOV_Identity      m_Identity
+    private ref NEKRASOV_Memory_Buffer m_Memory
+    private ref NEKRASOV_Moral_Engine   m_Moral
+    
+    // Текущее состояние (State Machine)
+    private string m_ActiveState = "OBSERVATION"
+
+    void NEKRASOV_AI_PERSONALITYCORE(PlayerBase player)
+    {
+        // Сборка Личности при спавне
+        m_Identity = new NEKRASOV_Identity(player)
+        m_Memory   = new NEKRASOV_Memory_Buffer(player)
+        m_Moral    = new NEKRASOV_Moral_Engine()
+        
+        NEKRASOV_Mumble_Logic.Say(player, "Система запущена. Сектор 900 под наблюдением.")
+    }
+
+    // ГЛАВНЫЙ ЦИКЛ МЫШЛЕНИЯ
+    void OnUpdate(float timeslice, PlayerBase player)
+    {
+        // 1. Опрос Памяти (Что я вижу/помню?)
+        m_Memory.OnTick(timeslice, player)
+
+        // 2. Вердикт Морального Движка (Как я отношусь к цели?)
+        EntityAI target = player.GetTarget()
+        string decision = m_Moral.DecideOutcome(player, PlayerBase.Cast(target))
+
+        // 3. ПЕРЕКЛЮЧЕНИЕ СОСТОЯНИЙ
+        if (decision == "ELIMINATE")
+            m_ActiveState = "COMBAT"
+            
+        if (decision == "IGNORE" && m_ActiveState != "HOUSEHOLD")
+            m_ActiveState = "OBSERVATION"
+
+        // 4. ИСПОЛНЕНИЕ (Узлы поведения)
+        if (m_ActiveState == "COMBAT")
+            NEKRASOV_Combat_Tactics.OnCombatUpdate(player, target, player.GetTargetDistance())
+            
+        if (m_ActiveState == "HOUSEHOLD")
+            NEKRASOV_Lifestyle_Module.OnLifestyleUpdate(player, player.GetLocalTime())
+    }
+
+    // ВЕРХОВНЫЙ ФИЛЬТР ДЕЙСТВИЙ (Блок Х)
+    bool CanPerformAction(PlayerBase player, string actionName)
+    {
+        // Если гигиена или табу запрещают — ИИ блокирует действие
+        if (!Nekrasov_Food_Taboo.IsActionAllowed(player, player.GetItemInHands()))
+            return false
+            
+        return true
+    }
+}
