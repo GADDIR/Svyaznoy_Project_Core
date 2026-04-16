@@ -1,4 +1,4 @@
-// AI_PERSONALITYCORE.C — ЦЕНТРАЛЬНЫЙ ПРОЦЕССОР СОСТОЯНИЙ
+// NEKRASOV_AI_PERSONALITYCORE.C — ЦЕНТРАЛЬНЫЙ ПРОЦЕССОР СОСТОЯНИЙ
 // Интеграция: Блоки 1-36. Узел принятия финальных решений.
 
 class AI_PersonalityCore
