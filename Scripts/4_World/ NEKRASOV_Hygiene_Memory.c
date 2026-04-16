@@ -3,7 +3,7 @@
     КРЕДО: "Чистота — залог здоровья, огонь — лучший лекарь."
 */
 
-class Svyaznoy_Hygiene_Module
+class  NEKRASOV_Hygiene_Module
 {
     // --- 🧼 ГИГИЕНА РУК (ДО И ПОСЛЕ) ---
     static void ProcessHygiene(PlayerBase self)
