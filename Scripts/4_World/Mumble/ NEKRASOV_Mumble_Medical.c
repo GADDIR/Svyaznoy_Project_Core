@@ -5,7 +5,7 @@
     SOURCE: Бабушка Анна + Кино-фольклор
 */
 
-class Svyaznoy_Mumble_Medical 
+class  NEKRASOV_Mumble_Medical 
 {
     static ref array<string> m_Phrases = {
         // --- Наставления бабушки Анны (Фронтовой опыт) ---
