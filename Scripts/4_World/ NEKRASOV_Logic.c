@@ -1,36 +1,36 @@
 /*
     ПРОЕКТ: СВЯЗНОЙ (Svyaznoy_Project_Core)
-    ОБЪЕКТ: Алексей Некрасов (АНН-79)
-    ФАЙЛ: Svyaznoy_Logic.c (ГЛАВНОЕ ЯДРО)
+    ОБЪЕКТ: НЕКРАСОВ АЛЕКСЕЙ НИКОЛАЕВИЧ (АНН-79)
+    ФАЙЛ:  NEKRASOV_Logic.c (ГЛАВНОЕ ЯДРО)
 */
 
 class Svyaznoy_Logic
 {
     // --- 🧬 ССЫЛКИ НА МОДУЛИ ---
     PlayerBase self;
-    ref Svyaznoy_Knowledge_Base m_Knowledge;
-    ref Svyaznoy_Medical_Protocol m_MedicalProtocol;
-    ref Svyaznoy_Agro_Memory     m_AgroMemory;
-    ref Svyaznoy_Hunter_Memory   m_HunterMemory;
-    ref Svyaznoy_Combat_Reflex   m_CombatReflex;
-    ref Svyaznoy_Base_Defense    m_BaseDefense;
+    ref  NEKRASOV_Knowledge_Base m_Knowledge;
+    ref  NEKRASOV_Medical_Protocol m_MedicalProtocol;
+    ref  NEKRASOV_Agro_Memory     m_AgroMemory;
+    ref  NEKRASOV_Hunter_Memory   m_HunterMemory;
+    ref  NEKRASOV_Combat_Reflex   m_CombatReflex;
+    ref  NEKRASOV_Base_Defense    m_BaseDefense;
     ref array<string>            m_TrustList; // Список Доверия
 
     // --- ⚙️ ПЕРЕМЕННЫЕ СОСТОЯНИЯ ---
     private int m_CurrentState = 501; 
 
     // --- 🏗️ КОНСТРУКТОР (ИНИЦИАЛИЗАЦИЯ) ---
-    void Svyaznoy_Logic(PlayerBase player)
+    void  NEKRASOV_Logic(PlayerBase player)
     {
         self = player;
         
         // Материализация "Разума"
-        m_Knowledge       = new Svyaznoy_Knowledge_Base();
-        m_MedicalProtocol = new Svyaznoy_Medical_Protocol();
-        m_AgroMemory      = new Svyaznoy_Agro_Memory();
-        m_HunterMemory    = new Svyaznoy_Hunter_Memory();
-        m_CombatReflex    = new Svyaznoy_Combat_Reflex();
-        m_BaseDefense     = new Svyaznoy_Base_Defense();
+        m_Knowledge       = new  NEKRASOV_Knowledge_Base();
+        m_MedicalProtocol = new  NEKRASOV_Medical_Protocol();
+        m_AgroMemory      = new  NEKRASOV_Agro_Memory();
+        m_HunterMemory    = new  NEKRASOV_Hunter_Memory();
+        m_CombatReflex    = new  NEKRASOV_Combat_Reflex();
+        m_BaseDefense     = new  NEKRASOV_Base_Defense();
         
         // Прошивка Списка Доверия
         m_TrustList = new array<string>;
