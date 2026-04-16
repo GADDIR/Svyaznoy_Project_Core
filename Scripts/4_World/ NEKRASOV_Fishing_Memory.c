@@ -3,7 +3,7 @@
     СПЕЦИАЛИЗАЦИЯ: УТИЛИЗАЦИЯ НЕГОДНЫХ СНАСТЕЙ
 */
 
-class Svyaznoy_Fishing_Memory
+class  NEKRASOV_Fishing_Memory
 {
     // --- ⚓ ИНСПЕКЦИЯ СНАРЯЖЕНИЯ ---
     static void InspectFishingGear(PlayerBase self)
