@@ -1,61 +1,52 @@
-// NEKRASOV_MEMORY_BUFFER.C — ВЕРТИКАЛЬ ПЯТИУРОВНЕВОЙ ПАМЯТИ (REGISTRY-DRIVEN)
-// Сильный код: Минимум вычислений, максимум точности через Генезис-Реестр.
+// NEKRASOV_MEMORY_BUFFER.C — ЦИФРОВОЙ СЛЕД СУБЪЕКТА 9001982
+// Синхронизировано с терминалом ША (15.04.2026)
 
 class Nekrasov_Memory_Buffer
 {
-    // --- ДАННЫЕ РЕАЛЬНОГО ВРЕМЕНИ ---
-    private vector m_E_ThreatVector     // Экстренная: Вектор угрозы
-    private float  m_E_ReflexTTL        // Таймер "Чистой доски"
-    private string m_S_ResumeAction     // Короткая: Action Resume
-    private ref map<string, vector> m_S_Anchors // Короткая: Якоря предметов
+    private ref map<string, string> m_SessionData;
+    private static string m_LogPath = "$profile:LIFE_LOG_NEKRASOV.json";
 
     void Nekrasov_Memory_Buffer()
     {
-        m_S_Anchors = new map<string, vector>
+        m_SessionData = new map<string, string>;
     }
 
-    // ГЛАВНЫЙ МЕТОД ДОСТУПА К ПАМЯТИ (Стык с Реестром)
-    // Любой модуль ИИ запрашивает Глубокую память (Блоки 1-36) здесь
-    float GetLegacyFactor(int blockID)
+    // 1. СЕКЦИЯ: SESSION_START
+    void InitSession(string subjectID)
     {
-        return Nekrasov_Genesis_Registry.Get(blockID)
+        m_SessionData.Set("Session_Start", "Timestamp: 15.04.2026 | ID: " + subjectID);
+        SaveBuffer();
     }
 
-    // ОБНОВЛЕНИЕ ПАМЯТИ (Tick)
-    void OnUpdate(float timeslice, PlayerBase player)
+    // 2. СЕКЦИЯ: MORAL_EVENTS (Табу и решения)
+    void LogMoralEvent(string eventDescription)
     {
-        // 1. Рефлекторная очистка (15 сек)
-        if (m_E_ReflexTTL > 0)
-        {
-            m_E_ReflexTTL -= timeslice
-            if (m_E_ReflexTTL <= 0)
-                m_E_ThreatVector = "0 0 0"
-        }
-
-        // 2. Гео-фильтр (500м): Удаление бытовых якорей при отходе от базы
-        // База берется из Генезиса (Блок №11: Координаты дома)
-        vector home = "0 0 0" // Здесь будет вызов из Реестра Блока 11
-        if (vector.Distance(player.GetPosition(), home) > 500)
-            m_S_Anchors.Clear()
+        string current = "";
+        m_SessionData.Find("Moral_Events", current);
+        m_SessionData.Set("Moral_Events", current + " | " + eventDescription);
+        SaveBuffer();
     }
 
-    // --- ПЕРЕХВАТ СОБЫТИЙ ---
-    
-    // Запомнить угрозу (для СВД и Самбо)
-    void SetThreat(vector pos)
+    // 3. СЕКЦИЯ: TRUST_MATRIX (Отношения с 731-м)
+    void UpdateTrustMatrix(float value, string context)
     {
-        m_E_ThreatVector = pos
-        m_E_ReflexTTL = 15.0
+        m_SessionData.Set("Trust_Matrix", "Value: " + value.ToString() + " | Context: " + context);
+        SaveBuffer();
     }
 
-    // Принцип "Незавершенного дела"
-    void SaveAction(string action)
+    // 4. СЕКЦИЯ: GENESIS_REGISTRY (Активация блоков 1-36)
+    void UnlockRegistryBlock(int blockID)
     {
-        m_S_ResumeAction = action
+        string current = "";
+        m_SessionData.Find("Genesis_Registry", current);
+        m_SessionData.Set("Genesis_Registry", current + " [" + blockID.ToString() + "]");
+        SaveBuffer();
     }
 
-    string RecallAction()
+    // ФИНАЛЬНАЯ ЗАПИСЬ (То, что читает ША)
+    void SaveBuffer()
     {
-        return m_S_ResumeAction
+        JsonFileLoader<map<string, string>>.JsonSaveFile(m_LogPath, m_SessionData);
+        Print("[AI_Nekrasov] Телеметрия сброшена в LIFE_LOG.");
     }
 }
