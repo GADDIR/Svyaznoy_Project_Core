@@ -1,10 +1,10 @@
 /*
     ПРОЕКТ: СВЯЗНОЙ
-    ОБЪЕКТ: Svyaznoy_Medical_Protocol (Модуль «АННА»)
+    ОБЪЕКТ:  NEKRASOV_Medical_Protocol (Модуль «АННА»)
     ОПИСАНИЕ: Реализация медицинского алгоритма «К.У.Л.А.К.»
 */
 
-class Svyaznoy_Medical_Protocol
+class  NEKRASOV_Medical_Protocol
 {
     // --- 🧬 ДИАГНОСТИКА (DiagnoseCondition) ---
     void DiagnoseCondition(PlayerBase self)
