@@ -4,7 +4,7 @@
     ОПИСАНИЕ: Круговая оборона Приюта. Сеть из 8 огневых точек и логика ротации.
 */
 
-class Svyaznoy_Base_Defense
+class  NEKRASOV_Base_Defense
 {
     // --- 🚨 СОСТОЯНИЯ ГОТОВНОСТИ ---
     static int STATE_PEACE = 0;   // Сейф-зона активна (Режим: Фермер)
@@ -79,7 +79,7 @@ class Svyaznoy_Base_Defense
         if (vector.Distance(self.GetPosition(), enemyPos) < 10.0)
         {
             Print("[СВЯЗНОЙ] Периметр прорван! Активация Протокола Жертвы.");
-            // Вызов из Svyaznoy_Logic модуля Sacrifice
+            // Вызов из  NEKRASOV_Logic модуля Sacrifice
         }
     }
 }
