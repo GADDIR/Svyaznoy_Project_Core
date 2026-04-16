@@ -4,7 +4,7 @@
     STATUS: ACTIVE (Linguistic expansion)
 */
 
-class Svyaznoy_Mumble_Agro 
+class  NEKRASOV_Mumble_Agro 
 {
     static ref array<string> m_Phrases = {
         // --- Философия Лопаты ---
