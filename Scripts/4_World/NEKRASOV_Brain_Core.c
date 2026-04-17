@@ -1,14 +1,15 @@
-// Исправленная логика вызовов для синхронизации с твоими данными
-void OnUpdate(float timeslice, PlayerBase player)
+class NEKRASOV_Brain_Core
 {
-    m_Memory.OnTick(timeslice, player);
-    // Модуль Морали теперь получает данные о игроке напрямую
-    string decision = m_Moral.DecideOutcome(player, null); 
-    if (decision == "ELIMINATE")
-        m_ActiveState = "COMBAT";
-            
-    if (decision == "IGNORE" && m_ActiveState != "HOUSEHOLD")
-        m_ActiveState = "OBSERVATION";
-    if (m_ActiveState == "COMBAT")
-        Nekrasov_Combat_Tactics.OnCombatUpdate(player, null, 0);
+    // Здесь только базовые переменные состояния тела
+    protected PlayerBase m_Player;
+    
+    void NEKRASOV_Brain_Core(PlayerBase player)
+    {
+        m_Player = player;
+    }
+    
+    void Tick(float delta)
+    {
+        // Базовый жизненный цикл
+    }
 }
