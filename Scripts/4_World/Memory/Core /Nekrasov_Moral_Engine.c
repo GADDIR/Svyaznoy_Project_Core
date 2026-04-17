@@ -11,7 +11,7 @@ class NEKRASOV_Moral_Engine
             return "COMBAT_READY"
 
         // 2. Проверка на "Вечного друга" (Блок №7)
-        if NEKRASOV_Trust_System.IsPermanentAlly(target))
+        if (NEKRASOV_Trust_System.IsPermanentAlly(target))
             return "PROTECT"
 
         // 3. Холодный расчет (Блок №8) и Триаж Анны (Блок №30)
