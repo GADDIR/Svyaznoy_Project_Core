@@ -1,5 +1,5 @@
 /*
-    МОДУЛЬ: Svyaznoy_Base_Defense
+    МОДУЛЬ: NEKRASOV_Base_Defense
     ВЕРСИЯ: 1.2 [FIRE_NETWORK_V2_INTEGRATED]
     ОПИСАНИЕ: Круговая оборона Приюта. Сеть из 8 огневых точек и логика ротации.
 */
