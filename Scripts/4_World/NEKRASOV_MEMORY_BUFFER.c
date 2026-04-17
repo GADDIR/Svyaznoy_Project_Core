@@ -1,7 +1,7 @@
 // NEKRASOV_MEMORY_BUFFER.C — ЦИФРОВОЙ СЛЕД СУБЪЕКТА 9001982
 // Синхронизировано с терминалом ША (15.04.2026)
 
-class Nekrasov_Memory_Buffer
+class NEKRASOV_Memory_Buffer
 {
     private ref map<string, string> m_SessionData;
     private static string m_LogPath = "$profile:LIFE_LOG_NEKRASOV.json";
