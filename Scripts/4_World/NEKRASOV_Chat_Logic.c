@@ -5,7 +5,7 @@
     ИНДЕКС: PRT-COMM-300.DIST
 */
 
-class Svyaznoy_Chat_Logic
+class NEKRASOV_Chat_Logic
 {
     private static string m_NamePrefix = "[Алексей Николаевич]: ";
     private static string m_RadioPrefix = "[Связной/Радио]: ";
