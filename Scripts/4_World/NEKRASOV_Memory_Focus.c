@@ -1,95 +1,106 @@
 /**
  * NEKRASOV_Memory_Focus.c
- * Управляющий центр динамической фокусировки сознания.
- * Решает, какие пласты памяти (1923, 1928, 1982) доминируют в текущий момент.
+ * УПРАВЛЯЮЩИЙ ЦЕНТР ДИНАМИЧЕСКОЙ ФОКУСИРОВКИ СОЗНАНИЯ.
+ * 
+ * Назначение: Перераспределение "веса" памяти в зависимости от ситуации.
+ * СТРОГО: Использование префикса NEKRASOV в верхнем регистре.
  */
 
-enum ENekrasovFocusMode
+enum E_NEKRASOV_FOCUS_MODE
 {
-    DEFAULT,    // Сбалансированное состояние
-    COMBAT,     // Доминанта Николая (1923) — Честь и Стойкость
-    SURVIVAL,   // Доминанта Анны (1928) — Интуиция и Жизнь
-    REFLEXION,  // Доминанта Алексея (1982) — Быт и Логика
-    CRITICAL    // Доминанта Золотого Стандарта — Граница Жизни и Смерти
+    IDLE,       // Покой: Доминанта 1982 (Быт)
+    THREAT,     // Угроза: Доминанта 2001 / 1923 (Тактика / Честь)
+    WORK,       // Труд: Доминанта 1994 / 2015 (Мастерство / Аудит)
+    TRAUMA,     // Стресс: Доминанта 2021 (Осторожность Банова)
+    MEDITATION  // Рефлексия: Доминанта 1928 (Интуиция Анны)
 }
 
 class NEKRASOV_Memory_Focus
 {
     private PlayerBase m_Player;
-    private ENekrasovFocusMode m_CurrentFocus;
-    
-    // Веса влияния (0.0 - 1.0)
-    private float m_Weight1923; // Николай
-    private float m_Weight1928; // Анна
-    private float m_Weight1982; // Алексей
-    
+    private E_NEKRASOV_FOCUS_MODE m_CurrentMode;
+
+    // Веса влияния эпох (динамические коэффициенты)
+    private float m_Weight_Legacy_1923; // Николай
+    private float m_Weight_Legacy_1928; // Анна
+    private float m_Weight_Life_1982;   // Алексей
+    private float m_Weight_Modern;      // Опыт 1994-2021
+
     void NEKRASOV_Memory_Focus(PlayerBase player)
     {
         m_Player = player;
-        m_CurrentFocus = ENekrasovFocusMode.DEFAULT;
-        ResetWeights();
+        m_CurrentMode = E_NEKRASOV_FOCUS_MODE.IDLE;
+        ResetFocus();
     }
 
-    // Главный метод обновления фокуса на основе состояния персонажа
-    void UpdateFocus(float timeslice)
+    // ГЛАВНЫЙ АЛГОРИТМ ПЕРЕКЛЮЧЕНИЯ ВНИМАНИЯ
+    void UpdateFocus()
     {
         if (!m_Player) return;
 
-        // 1. Анализ ситуации
-        bool isInDanger = m_Player.GetContext().IsInCombat(); // Условный метод контекста
-        float health = m_Player.GetHealth("", "");
+        float health = m_Player.GetHealth("","");
+        bool isFighting = m_Player.GetContext().IsFighting(); // Условный триггер боя
 
-        // 2. Переключение режимов
-        if (health < 30.0)
+        // 1. КРИТИЧЕСКИЙ ФОКУС (Травма 2021 + Стойкость 1923)
+        if (health < 40.0) 
         {
-            SetFocusMode(ENekrasovFocusMode.CRITICAL);
+            ApplyMode(E_NEKRASOV_FOCUS_MODE.TRAUMA);
+            return;
         }
-        else if (isInDanger)
+
+        // 2. БОЕВОЙ ФОКУС (Служба 2001 + Честь 1923)
+        if (isFighting)
         {
-            SetFocusMode(ENekrasovFocusMode.COMBAT);
+            ApplyMode(E_NEKRASOV_FOCUS_MODE.THREAT);
+            return;
         }
-        else
+
+        // 3. ТЕХНИЧЕСКИЙ ФОКУС (Мастерство 1994)
+        if (m_Player.GetItemInHands() && m_Player.GetItemInHands().IsInherited(Hammer))
         {
-            SetFocusMode(ENekrasovFocusMode.REFLEXION);
+            ApplyMode(E_NEKRASOV_FOCUS_MODE.WORK);
+            return;
         }
+
+        // ПО УМОЛЧАНИЮ - БЫТ 1982
+        ApplyMode(E_NEKRASOV_FOCUS_MODE.IDLE);
     }
 
-    private void SetFocusMode(ENekrasovFocusMode mode)
+    private void ApplyMode(E_NEKRASOV_FOCUS_MODE mode)
     {
-        if (m_CurrentFocus == mode) return;
-        m_CurrentFocus = mode;
+        if (m_CurrentMode == mode) return;
+        m_CurrentMode = mode;
 
         switch (mode)
         {
-            case ENekrasovFocusMode.COMBAT:
-                // В бою голос Николая (1923) становится законом
-                m_Weight1923 = 0.8; m_Weight1928 = 0.1; m_Weight1982 = 0.1;
-                Print("[Focus] Доминанта: Николай 1923 (Стойкость)");
+            case E_NEKRASOV_FOCUS_MODE.THREAT:
+                m_Weight_Legacy_1923 = 0.7; m_Weight_Modern = 0.3; // Опыт 2001 года
+                Print("[NEKRASOV_Focus] Внимание: ТАКТИКА И ЧЕСТЬ (1923/2001)");
                 break;
 
-            case ENekrasovFocusMode.SURVIVAL:
-                // При поиске ресурсов включается чутье Анны (1928)
-                m_Weight1923 = 0.2; m_Weight1928 = 0.7; m_Weight1982 = 0.1;
-                Print("[Focus] Доминанта: Анна 1928 (Интуиция)");
+            case E_NEKRASOV_FOCUS_MODE.WORK:
+                m_Weight_Life_1982 = 0.4; m_Weight_Modern = 0.6; // Опыт 1994 года
+                Print("[NEKRASOV_Focus] Внимание: МАСТЕРСТВО (1994/2015)");
                 break;
-
-            case ENekrasovFocusMode.REFLEXION:
-                // В покое Алексей (1982) анализирует быт
-                m_Weight1923 = 0.2; m_Weight1928 = 0.2; m_Weight1982 = 0.6;
-                Print("[Focus] Доминанта: Алексей 1982 (Быт)");
+                
+            case E_NEKRASOV_FOCUS_MODE.TRAUMA:
+                m_Weight_Legacy_1928 = 0.5; m_Weight_Modern = 0.5; // Опыт 2021 года
+                Print("[NEKRASOV_Focus] Внимание: ОСТОРОЖНОСТЬ (1928/2021)");
                 break;
         }
     }
 
-    private void ResetWeights()
+    private void ResetFocus()
     {
-        m_Weight1923 = 0.33; m_Weight1928 = 0.33; m_Weight1982 = 0.34;
+        m_Weight_Legacy_1923 = 0.25;
+        m_Weight_Legacy_1928 = 0.25;
+        m_Weight_Life_1982 = 0.25;
+        m_Weight_Modern = 0.25;
     }
 
-    // Геттеры для использования в других модулях (например в Mumble)
-    float GetLegacyWeight1923() { return m_Weight1923; }
-    float GetLegacyWeight1928() { return m_Weight1928; }
-    float GetLegacyWeight1982() { return m_Weight1982; }
-    ENekrasovFocusMode GetCurrentFocus() { return m_CurrentFocus; }
+    // Геттеры для других систем (MUMBLE, LOGIC, COMBAT)
+    float GetWeight1923() { return m_Weight_Legacy_1923; }
+    float GetWeight1928() { return m_Weight_Legacy_1928; }
+    float GetWeight1982() { return m_Weight_Life_1982; }
+    float GetWeightModern() { return m_Weight_Modern; }
 }
-
