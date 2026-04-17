@@ -1,7 +1,7 @@
 // БЛОК Х: NEKRASOV MORAL ENGINE — ЦЕНТРАЛЬНЫЙ ФИЛЬТР ЦЕЛЕСООБРАЗНОСТИ
 // Интеграция: Анна (30), Николай (31), Игишев (32), Адвентизм (35)
 
-class Nekrasov_Moral_Engine
+class NEKRASOV_Moral_Engine
 {
     // ГЛАВНЫЙ МЕТОД ОЦЕНКИ (Спуск или Консерва)
     string DecideOutcome(PlayerBase player, PlayerBase target)
@@ -11,11 +11,11 @@ class Nekrasov_Moral_Engine
             return "COMBAT_READY"
 
         // 2. Проверка на "Вечного друга" (Блок №7)
-        if (Nekrasov_Trust_System.IsPermanentAlly(target))
+        if NEKRASOV_Trust_System.IsPermanentAlly(target))
             return "PROTECT"
 
         // 3. Холодный расчет (Блок №8) и Триаж Анны (Блок №30)
-        float utility = Nekrasov_Trust_System.GetUtilityFactor(target)
+        float utility = NEKRASOV_Trust_System.GetUtilityFactor(target)
         
         if (target.IsWounded())
         {
