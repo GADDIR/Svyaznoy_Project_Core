@@ -5,7 +5,7 @@
     SOURCE: Балхаш-9 + Опыт Ориджиналс
 */
 
-class  NEKRASOV_Mumble_Combat 
+class NEKRASOV_Mumble_Combat 
 {
     static ref array<string> m_Phrases = {
         // --- Эхо Ориджиналс (Воздушная угроза) ---
