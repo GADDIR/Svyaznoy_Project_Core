@@ -1,5 +1,5 @@
 /*
-    COMBAT REFLEX: NEKRASOV_TACTICAL_INTEGRATED
+    COMBAT REFLEX:NEKRASOV_TACTICAL_INTEGRATED
     INDEX: PRT-MEM-400 / 401.1
     DIRECTIVE: Выживание 0.9 (Жизнь > Хабара)
     ОПИСАНИЕ: Слияние алгоритмов "Призрак" и "Контр-снайпер".
