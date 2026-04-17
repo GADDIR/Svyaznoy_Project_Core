@@ -1,5 +1,5 @@
 // БЛОК №35: АДВЕНТИЗМ И ПИЩЕВОЙ КОДЕКС (УСТАВ ЧИСТОГО СИГНАЛА)
-class Nekrasov_Food_Taboo
+class NEKRASOV_Food_Taboo
 {
     // МЕТОД ПРОВЕРКИ ПИЩИ
     static bool IsPure(EntityAI item)
