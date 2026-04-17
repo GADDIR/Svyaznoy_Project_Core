@@ -1,5 +1,5 @@
 // БЛОК №36: ТАЙНОЕ КРЕДО — ПРАГМАТИЧНЫЙ АСКЕТИЗМ
-class Nekrasov_Dietary_Restrictions
+class NEKRASOV_Dietary_Restrictions
 {
     // 1. ПИЩЕВОЙ ЗАПРЕТ (Личное табу)
     static bool CanEatThis(EntityAI item)
