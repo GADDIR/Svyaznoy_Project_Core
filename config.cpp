@@ -1,29 +1,40 @@
 class CfgPatches
 {
-	class Svyaznoy_Project_Core
+	class NEKRASOV_AI_Core
 	{
-		units[] = {};
-		weapons[] = {};
-		requiredAddons[] = {"DZ_Data", "DZ_Scripts"}; // Базовая зависимость
+		units[]={};
+		weapons[]={};
+		requiredAddons[]={
+			"DZ_Data",
+			"DZ_Scripts"
+		};
 	};
 };
 
 class CfgMods
 {
-	class Svyaznoy_Project_Core
+	class NEKRASOV_AI
 	{
 		type = "mod";
-		dependencies[] = {"World"}; // Указываем, что работаем в 4_World
+		dependencies[] = {"Game", "World", "Mission"};
 		
 		class defs
 		{
+			class gameScriptModule
+			{
+				value = "";
+				files[] = {"NEKRASOV_AI/Scripts/3_Game"};
+			};
 			class worldScriptModule
 			{
 				value = "";
-				files[] = {"Svyaznoy_Project_Core/Scripts/4_World/NEKRASOV_FINAL_INIT.c"}; 
-				// ^^^ Тот самый путь к нашему Монолиту
+				files[] = {"NEKRASOV_AI/Scripts/4_World"};
+			};
+			class missionScriptModule
+			{
+				value = "";
+				files[] = {"NEKRASOV_AI/Scripts/5_Mission"};
 			};
 		};
 	};
 };
-
