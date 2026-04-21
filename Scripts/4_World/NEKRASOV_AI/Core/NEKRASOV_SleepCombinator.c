@@ -1,76 +1,64 @@
 /**
  * NEKRASOV_SleepCombinator
- * Реализует логику "Честного Сна" Некрасова А.Н.
+ * Реализует логику "Честного Сна" и "Биологического обмена" (Здоровье за Сон).
  */
 class NEKRASOV_SleepCombinator
 {
     protected PlayerBase m_Maverick;
-    
-    // Константы порогов
-    static const float THRESHOLD_COLLAPSE = 14.0; // Провал сознания
-    static const float THRESHOLD_REQUEST  = 25.0; // Запрос к безопасности
-    
+    protected float m_BaseRecovery = 1.0; // Базовая скорость восстановления Zz
+
     void NEKRASOV_SleepCombinator(PlayerBase player)
     {
         m_Maverick = player;
     }
 
-    /**
-     * Возвращает коэффициент эффективности сна (0.0 - 1.0)
-     */
-    float GetSleepEfficiency()
+    void ProcessSleepPhysics(float deltaT)
     {
-        float efficiency = 1.0;
-        
-        // 1. УСЛОВИЕ: Время суток (Только ночь дает 100%)
-        if (!GetGame().GetNightTime()) 
-        {
-            efficiency *= 0.3; // Днем сон поверхностный
-        }
-        
-        // 2. УСЛОВИЕ: Тепло (Если синий индикатор - сон почти не идет)
-        float temp = m_Maverick.GetStatTemperature().Get();
-        if (temp < 35.0) 
-        {
-            efficiency *= 0.1; 
-        }
-        
-        // 3. УСЛОВИЕ: Сухость (Мокрая одежда "тихо" режет КПД)
-        float wet = m_Maverick.GetStatWet().Get();
-        if (wet > 0.1)
-        {
-            efficiency *= 0.5;
-        }
-        
-        return efficiency;
-    }
+        if (!m_Maverick) return;
 
-    /**
-     * Основная логика обсчета
-     */
-    void Process(float deltaT)
-    {
-        float currentSleep = m_Maverick.GetStatSleep();
-
-        // --- ЛОГИКА ПРОВАЛА (14%) ---
-        if (currentSleep <= THRESHOLD_COLLAPSE)
+        // --- ПРИОРИТЕТ 0: КРОВЬ (Bleeding) ---
+        // Если течет кровь — сон невозможен физически. Просыпаемся немедленно.
+        if (m_Maverick.GetBleedingManager() && m_Maverick.GetBleedingManager().GetBleedingSourcesCount() > 0)
         {
-            // Отключаем сознание (Шок в 0)
-            m_Maverick.SetHealth("", "Shock", 0);
+            WakeUp(); 
             return;
         }
 
-        // --- ЛОГИКА ВОССТАНОВЛЕНИЯ ---
-        if (m_Maverick.IsSleeping() || m_Maverick.IsUnconscious())
+        float energy = m_Maverick.GetStatEnergy().Get();
+        float water  = m_Maverick.GetStatWater().Get();
+
+        // --- ПРИОРИТЕТ 1: ЗДОРОВЬЕ (Health) В ОБМЕН НА СОН ---
+        // Если желудок пуст (Energy/Water <= 0), мы не просыпаемся,
+        // а начинаем "жечь" Здоровье. Это цена контроля над Zz.
+        if (energy <= 0 || water <= 0)
         {
-            float recovery = 1.5 * GetSleepEfficiency() * deltaT;
-            m_Maverick.AddStatSleep(recovery);
-            
-            // Если спим в мокром - есть шанс проснуться больным (без чата)
-            if (m_Maverick.GetStatWet().Get() > 0.5 && Math.RandomFloat01() < 0.001)
-            {
-                m_Maverick.GetModifiersManager().ActivateModifier(eModifiers.MDF_COLD);
-            }
+            // Наносим урон именно ЗДОРОВЬЮ, имитируя истощение организма во сне
+            float starvationDamage = 0.05 * deltaT; 
+            m_Maverick.AddHealth("", "Health", -starvationDamage);
         }
+
+        // --- ПРИОРИТЕТ 2: ВОССТАНОВЛЕНИЕ (Zz) ---
+        // Обсчитываем эффективность (Ночь, Тепло, Сухость)
+        float efficiency = GetSleepEfficiency(); 
+        m_Maverick.AddStatSleep(m_BaseRecovery * efficiency * deltaT);
+        
+        // --- ПРИОРИТЕТ 3: ПРЕДЕЛ ВЫЖИВАНИЯ ---
+        // Если Здоровье упало до 10% — организм выбрасывает нас из сна судоргой
+        if (m_Maverick.GetHealth("", "Health") < 10.0)
+        {
+            WakeUp(); 
+        }
+    }
+
+    protected float GetSleepEfficiency()
+    {
+        // Здесь логика Ночь/Тепло/Сухость, которую мы обсудили ранее
+        return 1.0; // Заглушка
+    }
+
+    protected void WakeUp()
+    {
+        m_Maverick.GetNEKRASOV_Brain().SetActiveMode(NEKRASOV_EModes.IDLE);
+        // Тут можно добавить анимацию тяжелого подъема
     }
 }
