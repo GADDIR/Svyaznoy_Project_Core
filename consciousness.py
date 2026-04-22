@@ -1,32 +1,51 @@
 import pymorphy3
+import json
+import os
 
 class Consciousness:
     def __init__(self):
         self.morph = pymorphy3.MorphAnalyzer()
-        # Базовая память (пока пустая)
-        self.memory = {}
+        self.memory_file = 'memory.json'
+        # Загружаем старую память, если она есть
+        self.memory = self.load_memory()
+
+    def load_memory(self):
+        if os.path.exists(self.memory_file):
+            with open(self.memory_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return {}
+
+    def save_memory(self):
+        with open(self.memory_file, 'w', encoding='utf-8') as f:
+            json.dump(self.memory, f, ensure_ascii=False, indent=4)
 
     def perceive(self, word):
-        """Метод 'Восприятие': разбирает слово на части речи"""
         p = self.morph.parse(word)[0]
-        return {
-            "lemma": p.normal_form, # Начальная форма (Зомби, Бежать)
-            "pos": p.tag.POS,        # Часть речи (NOUN, VERB...)
-            "gender": p.tag.gender   # Род (мужской, женский...)
-        }
+        return {"lemma": p.normal_form, "pos": p.tag.POS}
 
-    def generate_thought(self, object_word, quality_word):
-        """Метод 'Мысль': соединяет объект и его свойство"""
+    def think(self, object_word, quality_word):
         obj = self.perceive(object_word)
         qual = self.perceive(quality_word)
-        
-        # Логика: если объект — существительное, а свойство — прилагательное
+
         if obj['pos'] == 'NOUN' and qual['pos'] == 'ADJF':
-            return f"Мысль: {obj['lemma']} (объект) сейчас {qual['lemma']} (качество)."
-        return "Не могу связать эти понятия."
+            lemma_obj = obj['lemma']
+            lemma_qual = qual['lemma']
+            
+            # Сохраняем в память
+            self.memory[lemma_obj] = lemma_qual
+            self.save_memory()
 
-# Проверка
+            # Простая логика выбора Глагола
+            action = "Изучать"
+            if lemma_qual in ['опасный', 'злой', 'быстрый', 'страшный']:
+                action = "Убегать"
+            elif lemma_qual in ['вкусный', 'полезный', 'нужный']:
+                action = "Взять"
+
+            return f"МЫСЛЬ: {lemma_obj} — {lemma_qual}. РЕШЕНИЕ: {action}."
+        
+        return "Недостаточно данных для формирования мысли."
+
+# Тест:
 ai = Consciousness()
-print(ai.generate_thought("Зомби", "быстрые")) 
-# Выведет: Мысль: зомби сейчас быстрый.
-
+print(ai.think("Зомби", "страшные"))
