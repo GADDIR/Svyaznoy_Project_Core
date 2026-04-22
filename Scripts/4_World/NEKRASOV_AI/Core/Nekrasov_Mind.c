@@ -1,68 +1,77 @@
 class Nekrasov_Mind
 {
-    // Владелец "мозга" (NPC или игрок)
-    protected DayZPlayer m_Self;
+    // Ссылка на NPC, которым управляет этот "мозг"
+    protected DayZPlayer m_Entity;
     
-    // Текущее состояние "сознания"
-    protected string m_CurrentSubject;   // Существительное (Кто/Что)
-    protected string m_CurrentIntent;    // Глагол (Что делать)
-    protected string m_CurrentModifier;  // Наречие (Как)
+    // Текущие семантические данные (сознание)
+    protected string m_Subject;   // Существительное (Цель)
+    protected string m_Action;    // Глагол (Действие)
+    protected string m_Modifier;  // Наречие (Стиль выполнения)
 
     void Nekrasov_Mind(DayZPlayer owner)
     {
         m_Self = owner;
     }
 
-    // Метод "Внедрения мысли"
-    // Сюда парсер будет передавать разобранную русскую фразу
-    void Think(string noun, string verb, string adverb = "")
+    // Главная функция формирования мысли
+    void FormThought(string noun, string verb, string adverb = "")
     {
-        m_CurrentSubject = noun;
-        m_CurrentIntent = verb;
-        m_CurrentModifier = adverb;
+        m_Subject  = noun;
+        m_Action   = verb;
+        m_Modifier = adverb;
 
-        ProcessThought();
+        // Как только мысль сформирована, ИИ начинает её анализировать
+        AnalyzeIntention();
     }
 
-    // Логический процессор (превращает слова в действия движка)
-    protected void ProcessThought()
+    // Анализ намерения (Превращение слов в логику)
+    protected void AnalyzeIntention()
     {
         if (!m_Self) return;
 
-        Print("[NEKRASOV_AI] Анализ мысли: " + m_CurrentSubject + " | " + m_CurrentIntent + " | " + m_CurrentModifier);
+        Print("[NEKRASOV_AI] Моя мысль: " + m_Action + " " + m_Subject + " [" + m_Modifier + "]");
 
-        // 1. Определяем скорость (Наречие)
-        float speed = 1.0; // По умолчанию (шаг)
-        if (m_CurrentModifier == "быстро") speed = 2.0; // Спринт
-        if (m_CurrentModifier == "тихо")   speed = 0.5; // Красться
+        // 1. Обработка Наречия (Как именно делать?)
+        float intensity = 1.0;
+        if (m_Modifier == "быстро") intensity = 2.0;
+        if (m_Modifier == "тихо")   intensity = 0.5;
 
-        // 2. Определяем действие (Глагол)
-        switch (m_CurrentIntent)
+        // 2. Обработка Глагола (Что делать?)
+        switch (m_Action)
         {
             case "иди":
-                MoveToTarget(speed);
+            case "беги":
+                ExecuteMovement(intensity);
                 break;
                 
             case "стой":
-                StopMovement();
+                ExecuteStop();
                 break;
 
             case "атакуй":
-                EngageTarget();
+                ExecuteAttack(intensity);
                 break;
         }
     }
 
-    // Вспомогательные методы управления телом (Enforce Script)
-    protected void MoveToTarget(float speed)
+    // --- Исполнительные методы (Взаимодействие с движком) ---
+
+    protected void ExecuteMovement(float speed)
     {
-        // Здесь будет вызов навигационного движка (Navigation/Pathfinding)
-        Print("[NEKRASOV_AI] Исполняю: Движение со скоростью " + speed);
+        // Здесь подключается навигация DayZ
+        Print("[NEKRASOV_AI] Исполняю действие: Движение. Множитель скорости: " + speed);
+        // Код для перемещения NPC по вейпоинтам
     }
 
-    protected void StopMovement()
+    protected void ExecuteStop()
     {
-        // Остановка всех команд перемещения
-        Print("[NEKRASOV_AI] Исполняю: Остановка");
+        Print("[NEKRASOV_AI] Исполняю действие: Полная остановка");
+        // Очистка путей навигации
+    }
+
+    protected void ExecuteAttack(float aggressiveness)
+    {
+        Print("[NEKRASOV_AI] Исполняю действие: Атака. Агрессия: " + aggressiveness);
+        // Логика поиска цели и стрельбы
     }
 }
