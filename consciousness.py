@@ -1,4 +1,4 @@
-import pymorphy3
+                import pymorphy3
 import json
 import os
 
@@ -26,9 +26,10 @@ class Consciousness:
         p = self.morph.parse(word)[0]
         return {"lemma": p.normal_form, "pos": p.tag.POS}
 
-    def think(self, object_word, quality_word):
+    def think(self, object_word, quality_word, place_word="лес"):
         obj = self.perceive(object_word)
         qual = self.perceive(quality_word)
+        place = self.perceive(place_word)
 
         if obj['pos'] == 'NOUN' and qual['pos'] == 'ADJF':
             lemma_obj = obj['lemma']
@@ -36,43 +37,47 @@ class Consciousness:
             self.memory[lemma_obj] = lemma_qual
             self.save_memory()
 
-            # Базовые переменные мысли
-            action = "Идти"
-            how = "обычно"
-            not_particle = "" 
-
-            # Оценка собственного состояния (Местоимение + Прилагательное)
+            # Оценка состояния
             is_weak = self.health < 40
             state_desc = "слабый" if is_weak else "сильный"
 
-            # Логика принятия решений
+            # Логика Глагола и Наречия
+            action = "Идти"
+            how = "обычно"
+            reason = "" # Для союза "потому что"
+
             if lemma_qual in ['опасный', 'злой', 'страшный']:
                 if is_weak:
-                    not_particle = "НЕ "
-                    action = "Атаковать" # В итоге будет "НЕ Атаковать"
-                    how = "рискованно"
+                    action = "Прятаться"
+                    how = "тихо"
+                    reason = f"я {state_desc}, а он {lemma_qual}"
                 else:
                     action = "Атаковать"
                     how = "решительно"
+                    reason = f"я {state_desc}"
             
-            elif lemma_qual in ['вкусный', 'полезный', 'нужный']:
+            elif lemma_qual in ['вкусный', 'полезный']:
                 action = "Взять"
                 how = "немедленно"
+                reason = "это полезно"
 
-            # Смена тактики при слабости
-            if is_weak and action == "Атаковать":
-                final_decision = f"{not_particle}{action} ({how}), лучше Прятаться."
-            else:
-                final_decision = f"{not_particle}{action} ({how})"
+            # Работа с Предлогом
+            prep = "в" if place['lemma'] in ['лес', 'дом', 'сарай', 'куст'] else "на"
+            if place['lemma'] in ['дорога', 'гора', 'крыша']:
+                prep = "на"
 
-            return f"МЫСЛЬ: Я {state_desc}. {lemma_obj} {lemma_qual}. РЕШЕНИЕ: {final_decision}."
+            # Сборка итоговой мысли (Местоимение + Предлог + Союз)
+            return (f"МЫСЛЬ: Вижу {lemma_obj} {prep} {place['lemma']}. "
+                    f"РЕШЕНИЕ: Буду {action} {how}, "
+                    f"ПОТОМУ ЧТО {reason}.")
         
         return "В мыслях пустота..."
 
 # Тест:
 ai = Consciousness()
-# Пример 1: ИИ здоров
-print(ai.think("Волк", "злой"))
-# Пример 2: ИИ ранен
-ai.health = 25
-print(ai.think("Зомби", "страшные"))
+# Пример: ИИ ранен, видит волка в лесу
+ai.health = 30
+print(ai.think("Волк", "злой", "лес"))
+# Пример: ИИ здоров, видит еду на дороге
+ai.health = 100
+print(ai.think("Еда", "вкусная", "дорога"))
