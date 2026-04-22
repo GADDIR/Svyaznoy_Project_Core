@@ -1,42 +1,42 @@
 class Nekrasov_Mind
 {
-    // Ссылка на NPC, которым управляет этот "мозг"
+    // Ссылка на тело (NPC или Игрок)
     protected DayZPlayer m_Entity;
     
-    // Текущие семантические данные (сознание)
-    protected string m_Subject;   // Существительное (Цель)
+    // Семантическое "сознание"
+    protected string m_Subject;   // Существительное (Кто/Что)
     protected string m_Action;    // Глагол (Действие)
-    protected string m_Modifier;  // Наречие (Стиль выполнения)
+    protected string m_Modifier;  // Наречие (Как)
 
+    // Конструктор (Исправлено имя переменной с m_Self на m_Entity)
     void Nekrasov_Mind(DayZPlayer owner)
     {
-        m_Self = owner;
+        m_Entity = owner;
     }
 
-    // Главная функция формирования мысли
+    // Внешний интерфейс для Парсера
     void FormThought(string noun, string verb, string adverb = "")
     {
         m_Subject  = noun;
         m_Action   = verb;
         m_Modifier = adverb;
 
-        // Как только мысль сформирована, ИИ начинает её анализировать
         AnalyzeIntention();
     }
 
-    // Анализ намерения (Превращение слов в логику)
     protected void AnalyzeIntention()
     {
-        if (!m_Self) return;
+        if (!m_Entity) return;
 
-        Print("[NEKRASOV_AI] Моя мысль: " + m_Action + " " + m_Subject + " [" + m_Modifier + "]");
+        // Вывод "мыслей" в лог сервера (script.log)
+        Print("[NEKRASOV_AI] Сознание: " + m_Action + " " + m_Subject + " (" + m_Modifier + ")");
 
-        // 1. Обработка Наречия (Как именно делать?)
+        // 1. Модификатор действия (Наречие)
         float intensity = 1.0;
         if (m_Modifier == "быстро") intensity = 2.0;
         if (m_Modifier == "тихо")   intensity = 0.5;
 
-        // 2. Обработка Глагола (Что делать?)
+        // 2. Выбор действия (Глагол)
         switch (m_Action)
         {
             case "иди":
@@ -51,27 +51,28 @@ class Nekrasov_Mind
             case "атакуй":
                 ExecuteAttack(intensity);
                 break;
+                
+            default:
+                Print("[NEKRASOV_AI] Ошибка: Я не знаю глагола '" + m_Action + "'");
+                break;
         }
     }
 
-    // --- Исполнительные методы (Взаимодействие с движком) ---
+    // --- Реализация физических действий движком DayZ ---
 
     protected void ExecuteMovement(float speed)
     {
-        // Здесь подключается навигация DayZ
-        Print("[NEKRASOV_AI] Исполняю действие: Движение. Множитель скорости: " + speed);
-        // Код для перемещения NPC по вейпоинтам
+        // Здесь мы будем использовать AI-контроллер (например, из Expansion или Vanilla AI)
+        Print("[NEKRASOV_AI] Физика: Движение к '" + m_Subject + "' Скорость: " + speed);
     }
 
     protected void ExecuteStop()
     {
-        Print("[NEKRASOV_AI] Исполняю действие: Полная остановка");
-        // Очистка путей навигации
+        Print("[NEKRASOV_AI] Физика: Остановка всех систем");
     }
 
     protected void ExecuteAttack(float aggressiveness)
     {
-        Print("[NEKRASOV_AI] Исполняю действие: Атака. Агрессия: " + aggressiveness);
-        // Логика поиска цели и стрельбы
+        Print("[NEKRASOV_AI] Физика: Боевой режим против '" + m_Subject + "'");
     }
 }
