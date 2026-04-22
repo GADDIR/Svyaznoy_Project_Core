@@ -6,8 +6,11 @@ class Consciousness:
     def __init__(self):
         self.morph = pymorphy3.MorphAnalyzer()
         self.memory_file = 'memory.json'
-        # Загружаем старую память, если она есть
         self.memory = self.load_memory()
+        
+        # СОСТОЯНИЕ "Я"
+        self.health = 100 
+        self.energy = 100
 
     def load_memory(self):
         if os.path.exists(self.memory_file):
@@ -20,7 +23,6 @@ class Consciousness:
             json.dump(self.memory, f, ensure_ascii=False, indent=4)
 
     def perceive(self, word):
-        # Берем первый, самый вероятный разбор слова
         p = self.morph.parse(word)[0]
         return {"lemma": p.normal_form, "pos": p.tag.POS}
 
@@ -31,37 +33,46 @@ class Consciousness:
         if obj['pos'] == 'NOUN' and qual['pos'] == 'ADJF':
             lemma_obj = obj['lemma']
             lemma_qual = qual['lemma']
-            
-            # Сохраняем в память связку Объект + Качество
             self.memory[lemma_obj] = lemma_qual
             self.save_memory()
 
-            # Базовые настройки (Глагол + Наречие)
+            # Базовые переменные мысли
             action = "Идти"
             how = "обычно"
+            not_particle = "" 
 
-            # Логика принятия решений на основе "Золотых глаголов"
-            if lemma_qual in ['опасный', 'злой', 'страшный', 'вооруженный']:
-                action = "Прятаться"
-                how = "надежно"
-            elif lemma_qual in ['быстрый', 'агрессивный']:
-                action = "Атаковать"
-                how = "внезапно"
+            # Оценка собственного состояния (Местоимение + Прилагательное)
+            is_weak = self.health < 40
+            state_desc = "слабый" if is_weak else "сильный"
+
+            # Логика принятия решений
+            if lemma_qual in ['опасный', 'злой', 'страшный']:
+                if is_weak:
+                    not_particle = "НЕ "
+                    action = "Атаковать" # В итоге будет "НЕ Атаковать"
+                    how = "рискованно"
+                else:
+                    action = "Атаковать"
+                    how = "решительно"
+            
             elif lemma_qual in ['вкусный', 'полезный', 'нужный']:
                 action = "Взять"
-                how = "аккуратно"
-            elif lemma_qual in ['раненый', 'больной']:
-                action = "Лечить"
-                how = "срочно"
-            elif lemma_qual in ['неизвестный', 'странный']:
-                action = "Изучать"
-                how = "внимательно"
+                how = "немедленно"
 
-            return f"МЫСЛЬ: {lemma_obj} — {lemma_qual}. РЕШЕНИЕ: {action} ({how})."
+            # Смена тактики при слабости
+            if is_weak and action == "Атаковать":
+                final_decision = f"{not_particle}{action} ({how}), лучше Прятаться."
+            else:
+                final_decision = f"{not_particle}{action} ({how})"
+
+            return f"МЫСЛЬ: Я {state_desc}. {lemma_obj} {lemma_qual}. РЕШЕНИЕ: {final_decision}."
         
-        return "Недостаточно данных для формирования мысли."
+        return "В мыслях пустота..."
 
-# Тест работы сознания:
+# Тест:
 ai = Consciousness()
+# Пример 1: ИИ здоров
+print(ai.think("Волк", "злой"))
+# Пример 2: ИИ ранен
+ai.health = 25
 print(ai.think("Зомби", "страшные"))
-print(ai.think("Аптечка", "полезная"))
