@@ -20,6 +20,7 @@ class Consciousness:
             json.dump(self.memory, f, ensure_ascii=False, indent=4)
 
     def perceive(self, word):
+        # Берем первый, самый вероятный разбор слова
         p = self.morph.parse(word)[0]
         return {"lemma": p.normal_form, "pos": p.tag.POS}
 
@@ -31,21 +32,36 @@ class Consciousness:
             lemma_obj = obj['lemma']
             lemma_qual = qual['lemma']
             
-            # Сохраняем в память
+            # Сохраняем в память связку Объект + Качество
             self.memory[lemma_obj] = lemma_qual
             self.save_memory()
 
-            # Простая логика выбора Глагола
-            action = "Изучать"
-            if lemma_qual in ['опасный', 'злой', 'быстрый', 'страшный']:
-                action = "Убегать"
+            # Базовые настройки (Глагол + Наречие)
+            action = "Идти"
+            how = "обычно"
+
+            # Логика принятия решений на основе "Золотых глаголов"
+            if lemma_qual in ['опасный', 'злой', 'страшный', 'вооруженный']:
+                action = "Прятаться"
+                how = "надежно"
+            elif lemma_qual in ['быстрый', 'агрессивный']:
+                action = "Атаковать"
+                how = "внезапно"
             elif lemma_qual in ['вкусный', 'полезный', 'нужный']:
                 action = "Взять"
+                how = "аккуратно"
+            elif lemma_qual in ['раненый', 'больной']:
+                action = "Лечить"
+                how = "срочно"
+            elif lemma_qual in ['неизвестный', 'странный']:
+                action = "Изучать"
+                how = "внимательно"
 
-            return f"МЫСЛЬ: {lemma_obj} — {lemma_qual}. РЕШЕНИЕ: {action}."
+            return f"МЫСЛЬ: {lemma_obj} — {lemma_qual}. РЕШЕНИЕ: {action} ({how})."
         
         return "Недостаточно данных для формирования мысли."
 
-# Тест:
+# Тест работы сознания:
 ai = Consciousness()
 print(ai.think("Зомби", "страшные"))
+print(ai.think("Аптечка", "полезная"))
