@@ -1,78 +1,68 @@
-class Nekrasov_Mind
+class NEKRASOV_MaverickController
 {
-    // Ссылка на тело (NPC или Игрок)
-    protected DayZPlayer m_Entity;
+    protected PlayerBase m_Agent;
     
-    // Семантическое "сознание"
-    protected string m_Subject;   // Существительное (Кто/Что)
-    protected string m_Action;    // Глагол (Действие)
-    protected string m_Modifier;  // Наречие (Как)
+    // Текущая "мысль"
+    protected string m_LastVerb;   // Глагол
+    protected string m_LastAdverb; // Наречие
 
-    // Конструктор (Исправлено имя переменной с m_Self на m_Entity)
-    void Nekrasov_Mind(DayZPlayer owner)
+    void NEKRASOV_MaverickController(PlayerBase agent)
     {
-        m_Entity = owner;
+        m_Agent = agent;
     }
 
-    // Внешний интерфейс для Парсера
-    void FormThought(string noun, string verb, string adverb = "")
+    // Обработка русского языка
+    void ProcessText(string text)
     {
-        m_Subject  = noun;
-        m_Action   = verb;
-        m_Modifier = adverb;
+        text.ToLower();
+        
+        // Разделяем строку на слова
+        TStringArray words = new TStringArray;
+        text.Split(" ", words);
 
-        AnalyzeIntention();
+        string v = ""; // Глагол
+        string a = ""; // Наречие
+
+        foreach (string word : words)
+        {
+            // Грамматический фильтр (Глаголы)
+            if (word == "иди" || word == "беги" || word == "стой" || word == "атакуй") v = word;
+            
+            // Грамматический фильтр (Наречия)
+            if (word == "быстро" || word == "тихо" || word == "аккуратно") a = word;
+        }
+
+        if (v != "") 
+        {
+            m_LastVerb = v;
+            m_LastAdverb = a;
+            ApplyLogic();
+        }
     }
 
-    protected void AnalyzeIntention()
+    protected void ApplyLogic()
     {
-        if (!m_Entity) return;
+        float speed = 1.0;
+        if (m_LastAdverb == "быстро") speed = 2.0;
+        if (m_LastAdverb == "тихо")   speed = 0.5;
 
-        // Вывод "мыслей" в лог сервера (script.log)
-        Print("[NEKRASOV_AI] Сознание: " + m_Action + " " + m_Subject + " (" + m_Modifier + ")");
+        Print("[NEKRASOV] Осознал команду: " + m_LastVerb + " | Стиль: " + m_LastAdverb);
 
-        // 1. Модификатор действия (Наречие)
-        float intensity = 1.0;
-        if (m_Modifier == "быстро") intensity = 2.0;
-        if (m_Modifier == "тихо")   intensity = 0.5;
-
-        // 2. Выбор действия (Глагол)
-        switch (m_Action)
+        // Здесь вызываются реальные методы движения NPC
+        switch (m_LastVerb)
         {
             case "иди":
             case "беги":
-                ExecuteMovement(intensity);
+                // m_Agent.GetInputController().... (Логика движения)
                 break;
-                
             case "стой":
-                ExecuteStop();
-                break;
-
-            case "атакуй":
-                ExecuteAttack(intensity);
-                break;
-                
-            default:
-                Print("[NEKRASOV_AI] Ошибка: Я не знаю глагола '" + m_Action + "'");
+                // Остановка
                 break;
         }
     }
 
-    // --- Реализация физических действий движком DayZ ---
-
-    protected void ExecuteMovement(float speed)
+    void OnUpdate(float timeslice) 
     {
-        // Здесь мы будем использовать AI-контроллер (например, из Expansion или Vanilla AI)
-        Print("[NEKRASOV_AI] Физика: Движение к '" + m_Subject + "' Скорость: " + speed);
-    }
-
-    protected void ExecuteStop()
-    {
-        Print("[NEKRASOV_AI] Физика: Остановка всех систем");
-    }
-
-    protected void ExecuteAttack(float aggressiveness)
-    {
-        Print("[NEKRASOV_AI] Физика: Боевой режим против '" + m_Subject + "'");
+        // Здесь можно дописывать логику движения в реальном времени
     }
 }
