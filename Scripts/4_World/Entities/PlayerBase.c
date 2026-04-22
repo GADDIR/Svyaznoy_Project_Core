@@ -10,9 +10,7 @@ modded class PlayerBase
         // Работаем только на стороне сервера
         if (GetGame().IsServer())
         {
-            // Здесь мы можем идентифицировать Маверика. 
-            // Например, по пресету персонажа или специальному флагу.
-            // Пока сделаем проверку, что это не обычный игрок-человек
+            // У NPC обычно нет Identity. Это хороший способ отличить их от игроков.
             if ( !GetIdentity() ) 
             {
                 InitNekrasovAI();
@@ -20,34 +18,37 @@ modded class PlayerBase
         }
     }
 
-    // Метод активации "Чипа сознания"
     void InitNekrasovAI()
     {
-        Print("NEKRASOV AI: Обнаружена биологическая оболочка. Подключение контроллера...");
+        Print("NEKRASOV AI: Подключение контроллера к телу...");
         m_NekrasovController = new NEKRASOV_MaverickController(this);
     }
 
-    // Главный тик жизни
+    // Метод, который вызывается из чата (MissionServer)
+    void ReceiveNekrasovCommand(string message)
+    {
+        if (m_NekrasovController)
+        {
+            m_NekrasovController.ProcessText(message);
+        }
+    }
+
     override void OnUpdate(float timeslice)
     {
         super.OnUpdate(timeslice);
-
-        // Если мозг подключен — передаем ему управление в каждом кадре
         if (m_NekrasovController)
         {
             m_NekrasovController.OnUpdate(timeslice);
         }
     }
     
-    // Важно: удаляем контроллер при смерти тела
     override void EEKilled(Object killer)
     {
         super.EEKilled(killer);
         if (m_NekrasovController)
         {
-            Print("NEKRASOV AI: Биологическая смерть носителя. Отключение...");
+            Print("NEKRASOV AI: Связь разорвана. Носитель мертв.");
             m_NekrasovController = null; 
         }
     }
 }
-
