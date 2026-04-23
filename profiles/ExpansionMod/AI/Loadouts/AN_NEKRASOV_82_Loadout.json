@@ -33,6 +33,7 @@
             "ClassName": "ShoulderBag_Green",
             "Inventory": [
                 { "ClassName": "WaterBottle", "Quantity": 1 },
+                { "ClassName": "WaterBottle", "Quantity": 1 },
                 { "ClassName": "SeedsPack_Tomato", "Quantity": 1 },
                 { "ClassName": "SeedsPack_Zucchini", "Quantity": 1 },
                 { "ClassName": "SeedsPack_Pumpkin", "Quantity": 1 },
