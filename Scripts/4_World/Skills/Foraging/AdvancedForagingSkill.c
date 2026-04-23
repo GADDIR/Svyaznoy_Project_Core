@@ -4,11 +4,11 @@ class AdvancedForagingSkill
     {
         if (!bot || !bot.IsAlive()) return;
 
-        // 1. Поиск дикоросов в радиусе 10 метров
+        // 1. Поиск: Сканируем землю (радиус 10м)
         SearchForNatureFood(bot);
 
-        // 2. Логика сушки: если в инвентаре есть свежие грибы/фрукты и рядом костер
-        if (HasRawNatureFood(bot) && IsFireActive(bot))
+        // 2. Заготовка: Если есть костер и свежие плоды — сушим их
+        if (IsFireActive(bot))
         {
             StartDryingProcess(bot);
         }
@@ -16,7 +16,6 @@ class AdvancedForagingSkill
 
     private void SearchForNatureFood(ExpansionAIBase bot)
     {
-        // Бот ищет: Яблоки, Груши, Сливы, Шиповник, Бузину и 7 видов съедобных грибов
         array<Object> objects = new array<Object>;
         GetGame().GetObjectsAtPosition3D(bot.GetPosition(), 10.0, objects, null);
 
@@ -25,11 +24,14 @@ class AdvancedForagingSkill
             Edible_Base food = Edible_Base.Cast(obj);
             if (food && IsValuableForage(food))
             {
-                // Игнорируем гнилое и ядовитое
+                // Игнорируем гнилое (4) и ядовитое
                 if (food.GetHealthLevel() < 4 && !IsPoisonous(food))
                 {
-                    bot.TakeEntityToInventory(InventoryMode.PREDICTIVE, food);
-                    Print("[AN_NEKRASOV_82] Нашел ценный дар леса: " + food.GetType());
+                    if (bot.GetInventory().CanAddEntityIntoInventory(food))
+                    {
+                        bot.TakeEntityToInventory(InventoryMode.PREDICTIVE, food);
+                        Print("[AN_NEKRASOV_82] Нашел " + food.GetType() + " в отличном состоянии.");
+                    }
                 }
             }
         }
@@ -37,18 +39,44 @@ class AdvancedForagingSkill
 
     private void StartDryingProcess(ExpansionAIBase bot)
     {
-        // Навык ветерана: положить гриб в слот коптильни костра (Smoking Slot)
-        // Сушеный гриб — лучший перекус туриста.
-        Print("[AN_NEKRASOV_82] Заготавливаю сухофрукты и сушеные грибы на зиму.");
+        // Ищем ближайший активный костер
+        Fireplace fireplace = Fireplace.Cast(bot.GetNearestObject("Fireplace", 3.0));
+        if (!fireplace || !fireplace.IsIgnited()) return;
+
+        // Перебираем инвентарь в поисках свежих (Raw) дикоросов
+        array<EntityAI> items = new array<EntityAI>;
+        bot.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+
+        foreach (EntityAI item : items)
+        {
+            Edible_Base food = Edible_Base.Cast(item);
+            // Если еда свежая и подходит для сушки
+            if (food && food.GetFoodStage() == FoodStageType.RAW && IsValuableForage(food))
+            {
+                // Пытаемся засунуть в слот Smoking (коптильня)
+                if (fireplace.GetInventory().CanAddAttachment(food))
+                {
+                    bot.TakeItemToHands(food);
+                    bot.StartAction(ActionAttach); 
+                    Print("[AN_NEKRASOV_82] Поместил " + food.GetType() + " в коптильню для заготовки.");
+                    return; // За раз кладем одну единицу, чтобы не спамить
+                }
+            }
+        }
     }
 
     private bool IsValuableForage(Edible_Base food) {
         string type = food.GetType();
-        return type.Contains("Mushroom") || type.Contains("Apple") || type.Contains("Pear") || type.Contains("Plum") || type.Contains("Canina") || type.Contains("Sambucus");
+        return type.Contains("Mushroom") || type.Contains("Apple") || type.Contains("Pear") || 
+               type.Contains("Plum") || type.Contains("Canina") || type.Contains("Sambucus");
     }
 
     private bool IsPoisonous(Edible_Base food) {
+        // Защита от мухоморов и ложных грибов
         return food.GetType().Contains("Amanita") || food.GetType().Contains("Chlorophyllum");
     }
-}
 
+    private bool IsFireActive(ExpansionAIBase bot) {
+        return bot.IsNearObject("Fireplace", 3.0);
+    }
+}
