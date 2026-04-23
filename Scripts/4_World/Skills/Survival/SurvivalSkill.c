@@ -6,26 +6,52 @@ class SurvivalSkill
     {
         if (!bot || !bot.IsAlive()) return;
 
-        // 1. Проверка Жажды
+        // 1. САНИТАРНЫЙ КОНТРОЛЬ: Слив опасных жидкостей (кроме чая и супа)
+        CheckAndPurgeUnsafeLiquids(bot);
+
+        // 2. Проверка Жажды
         if (bot.GetStatWater().Get() < NEED_THRESHOLD)
         {
-            ProcessConsumption(bot, "WaterBottle");
+            ProcessConsumption(bot, "WaterBottle"); // Пьем только из проверенной тары
             return; 
         }
 
-        // 2. Проверка Голода
+        // 3. Проверка Голода
         if (bot.GetStatEnergy().Get() < NEED_THRESHOLD)
         {
-            // Ищем любую еду (фрукты, овощи, грибы)
             Edible_Base food = Edible_Base.Cast(bot.GetInventory().FindEntityInInventory("Edible_Base"));
             if (food)
             {
                 ProcessConsumption(bot, food.GetType());
             }
-            // Если еды нет, пробуем открыть консервы
             else if (HasItem(bot, "PeachesCan") && HasItem(bot, "CanOpener"))
             {
                 OpenAndEat(bot, "PeachesCan");
+            }
+        }
+    }
+
+    private void CheckAndPurgeUnsafeLiquids(ExpansionAIBase bot)
+    {
+        array<EntityAI> items = new array<EntityAI>;
+        bot.GetInventory().EnumerateInventory(InventoryTraversalType.PREORDER, items);
+
+        foreach (EntityAI item : items)
+        {
+            ItemBase container = ItemBase.Cast(item);
+            // Если это тара, в ней есть жидкость и это НЕ пустая бутылка
+            if (container && container.IsLiquidContainer() && container.GetQuantity() > 0)
+            {
+                // ИСКЛЮЧЕНИЯ: Не сливаем чай (горячий) или суп (в кастрюле)
+                if (container.GetTemperature() > 30) continue; 
+
+                // ПРОВЕРКА: Если вода "дикая" (не верифицирована ботом как чистая)
+                if (!IsWaterVerifiedClean(container))
+                {
+                    Print("[AN_NEKRASOV_82] Подозрительная вода в " + container.GetType() + ". Сливаю для безопасности.");
+                    bot.TakeItemToHands(container);
+                    bot.StartAction(ActionEmptyBottleBase); 
+                }
             }
         }
     }
@@ -43,15 +69,13 @@ class SurvivalSkill
             return;
         }
 
-        // ПРОВЕРКА №2: На сырое мясо (Защита от сальмонеллеза)
+        // ПРОВЕРКА №2: На сырое мясо
         if (item.IsInherited(Meat_Base) && !item.IsFoodCooked())
         {
-            Print("[AN_NEKRASOV_82] Мясо сырое. Есть нельзя, нужно пожарить.");
-            // Здесь сработает навык CookingSkill
+            Print("[AN_NEKRASOV_82] Мясо сырое. Нужна жарка.");
             return; 
         }
 
-        // Если безопасно — едим/пьем
         if (bot.GetHumanInventory().CanAddEntityInHands(item))
         {
             bot.TakeItemToHands(item);
@@ -60,6 +84,13 @@ class SurvivalSkill
             else
                 bot.StartAction(ActionEat);
         }
+    }
+
+    private bool IsWaterVerifiedClean(ItemBase container)
+    {
+        // Здесь логика метки: бот считает воду чистой только если сам её набрал из Well или вскипятил
+        // Вся найденная в мире вода по умолчанию не имеет этой метки
+        return container.IsItemClean(); 
     }
 
     private bool HasItem(ExpansionAIBase bot, string className)
@@ -71,6 +102,5 @@ class SurvivalSkill
     {
         Print("[AN_NEKRASOV_82] Пытаюсь открыть консервы...");
         bot.TakeItemToHands(food);
-        // В будущем здесь вызов ActionOpenCan через скрипт
     }
 }
