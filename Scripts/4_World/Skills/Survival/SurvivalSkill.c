@@ -1,32 +1,64 @@
 class SurvivalSkill
 {
-    // Пороги срабатывания инстинктов (30% от максимума)
     private const float NEED_THRESHOLD = 1500.0; 
 
     void OnUpdate(ExpansionAIBase bot)
     {
-        if (!bot) return;
+        if (!bot || !bot.IsAlive()) return;
 
         // 1. Проверка Жажды
         if (bot.GetStatWater().Get() < NEED_THRESHOLD)
         {
-            UseItem(bot, "WaterBottle");
-            return; // Прерываем цикл, чтобы он сфокусировался на питье
+            ProcessConsumption(bot, "WaterBottle");
+            return; 
         }
 
         // 2. Проверка Голода
         if (bot.GetStatEnergy().Get() < NEED_THRESHOLD)
         {
-            // Сначала едим яблоко, если оно есть
-            if (HasItem(bot, "Apple"))
+            // Ищем любую еду (фрукты, овощи, грибы)
+            Edible_Base food = Edible_Base.Cast(bot.GetInventory().FindEntityInInventory("Edible_Base"));
+            if (food)
             {
-                UseItem(bot, "Apple");
+                ProcessConsumption(bot, food.GetType());
             }
-            // Если яблок нет, переходим к консервам (но помним про открывалку!)
+            // Если еды нет, пробуем открыть консервы
             else if (HasItem(bot, "PeachesCan") && HasItem(bot, "CanOpener"))
             {
                 OpenAndEat(bot, "PeachesCan");
             }
+        }
+    }
+
+    private void ProcessConsumption(ExpansionAIBase bot, string className)
+    {
+        EntityAI item = bot.GetInventory().FindEntityInInventory(className);
+        if (!item) return;
+
+        // ПРОВЕРКА №1: На гниль (Rotten)
+        if (item.GetHealthLevel() >= 4 || item.IsRuined())
+        {
+            Print("[AN_NEKRASOV_82] Продукт " + className + " сгнил. Выбрасываю.");
+            bot.PredictiveDropEntity(item); 
+            return;
+        }
+
+        // ПРОВЕРКА №2: На сырое мясо (Защита от сальмонеллеза)
+        if (item.IsInherited(Meat_Base) && !item.IsFoodCooked())
+        {
+            Print("[AN_NEKRASOV_82] Мясо сырое. Есть нельзя, нужно пожарить.");
+            // Здесь сработает навык CookingSkill
+            return; 
+        }
+
+        // Если безопасно — едим/пьем
+        if (bot.GetHumanInventory().CanAddEntityInHands(item))
+        {
+            bot.TakeItemToHands(item);
+            if (item.IsInherited(WaterBottle))
+                bot.StartAction(ActionConsume);
+            else
+                bot.StartAction(ActionEat);
         }
     }
 
@@ -35,24 +67,10 @@ class SurvivalSkill
         return bot.GetInventory().FindEntityInInventory(className) != null;
     }
 
-    private void UseItem(ExpansionAIBase bot, string className)
-    {
-        EntityAI item = bot.GetInventory().FindEntityInInventory(className);
-        if (item && bot.GetHumanInventory().CanAddEntityInHands(item))
-        {
-            bot.TakeItemToHands(item);
-            // Запуск стандартного действия использования предмета
-            bot.StartAction(ActionConsume); 
-        }
-    }
-
     private void OpenAndEat(ExpansionAIBase bot, string food)
     {
-        // Логика: взять открывалку -> открыть банку -> съесть
-        // Это более сложный процесс, который требует последовательности анимаций
         Print("[AN_NEKRASOV_82] Пытаюсь открыть консервы...");
         bot.TakeItemToHands(food);
-        // Здесь в будущем добавим вызов ActionOpenCan
+        // В будущем здесь вызов ActionOpenCan через скрипт
     }
 }
-
