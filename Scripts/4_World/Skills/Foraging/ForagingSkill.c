@@ -4,7 +4,7 @@ class ForagingSkill
     {
         if (!bot || !bot.IsAlive()) return;
 
-        // 1. Условие: Бот идет или стоит в лесу/саду + он слегка проголодался
+        // 1. Условие: Голод ниже 4000
         if (bot.GetStatEnergy().Get() < 4000)
         {
             SearchForNatureFood(bot);
@@ -13,7 +13,6 @@ class ForagingSkill
 
     private void SearchForNatureFood(ExpansionAIBase bot)
     {
-        // Ищем объекты в радиусе 3-5 метров на земле
         array<Object> objects = new array<Object>;
         GetGame().GetObjectsAtPosition3D(bot.GetPosition(), 5.0, objects, null);
 
@@ -22,19 +21,22 @@ class ForagingSkill
             Edible_Base food = Edible_Base.Cast(obj);
             if (food && IsNatureFood(food))
             {
-                // Проверка состояния: Некрасов не берет гнилое (Rotten)
-                if (food.GetHealthLevel() < 4) 
+                // ВАРИАНТ: Проверка на гниль (Rotten = 4)
+                if (food.GetHealthLevel() >= 4) 
                 {
-                    CollectFood(bot, food);
-                    return;
+                    // Просто пропускаем и логируем для админки
+                    Print("[AN_NEKRASOV_82] Обнаружена гниль в " + food.GetType() + ". Прохожу мимо.");
+                    continue; 
                 }
+
+                CollectFood(bot, food);
+                return;
             }
         }
     }
 
     private bool IsNatureFood(Edible_Base food)
     {
-        // Список того, что Мэверик узнает как еду
         string type = food.GetType();
         return (type.Contains("Mushroom") || type.Contains("Apple") || 
                 type.Contains("Pear") || type.Contains("Plum") || 
@@ -43,17 +45,19 @@ class ForagingSkill
 
     private void CollectFood(ExpansionAIBase bot, Edible_Base food)
     {
-        // Логика: Поднять и либо съесть сразу, либо убрать в карман
+        // Дополнительная проверка перед физическим контактом
+        if (food.IsRuined()) return; 
+
         if (bot.GetInventory().CanAddEntityIntoInventory(food))
         {
             bot.TakeEntityToInventory(InventoryMode.PREDICTIVE, food);
-            Print("[AN_NEKRASOV_82] Нашел дикоросы: " + food.GetType());
+            Print("[AN_NEKRASOV_82] Нашел чистый продукт: " + food.GetType());
         }
         else
         {
+            // Если рюкзак полон — ест сразу, но только если не гнилое
             bot.TakeItemToHands(food);
             bot.StartAction(ActionEat);
         }
     }
 }
-
