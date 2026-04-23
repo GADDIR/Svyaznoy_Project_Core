@@ -1,1 +1,43 @@
-
+{
+    "Version": 1,
+    "IsCharacterCustom": 1,
+    "CharacterCustom": "SurvivorM_Maverick",
+    "Inventory": [
+        {
+            "ClassName": "AN_NEKRASOV_82_Identity_Doc",
+            "Quantity": 1
+        },
+        {
+            "ClassName": "Hoe",
+            "Quantity": 1
+        },
+        {
+            "ClassName": "QuiltedJacket_Black",
+            "Inventory": [
+                { "ClassName": "Apple", "Quantity": 1 },
+                { "ClassName": "PeachesCan", "Quantity": 1 }
+            ]
+        },
+        {
+            "ClassName": "CargoPants_Blue",
+            "Inventory": [
+                { "ClassName": "CanOpener", "Quantity": 1 },
+                { "ClassName": "Matchbox", "Quantity": 1 }
+            ]
+        },
+        {
+            "ClassName": "WorkingBoots_Grey",
+            "Inventory": []
+        },
+        {
+            "ClassName": "ShoulderBag_Green",
+            "Inventory": [
+                { "ClassName": "WaterBottle", "Quantity": 1 },
+                { "ClassName": "SeedsPack_Tomato", "Quantity": 1 },
+                { "ClassName": "SeedsPack_Zucchini", "Quantity": 1 },
+                { "ClassName": "SeedsPack_Pumpkin", "Quantity": 1 },
+                { "ClassName": "SeedsPack_Pepper", "Quantity": 1 }
+            ]
+        }
+    ]
+}
