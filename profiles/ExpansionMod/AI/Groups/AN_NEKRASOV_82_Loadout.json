@@ -8,21 +8,36 @@
             "Quantity": 1
         },
         {
-            "ClassName": "TTsKO_Jacket_Camo",
-            "Inventory": []
+            "ClassName": "Hoe",
+            "Quantity": 1
         },
         {
-            "ClassName": "TTsKO_Pants_Camo",
-            "Inventory": []
+            "ClassName": "QuiltedJacket_Black",
+            "Inventory": [
+                { "ClassName": "Apple", "Quantity": 1 },
+                { "ClassName": "PeachesCan", "Quantity": 1 }
+            ]
         },
         {
-            "ClassName": "MilitaryBoots_Black",
+            "ClassName": "CargoPants_Blue",
+            "Inventory": [
+                { "ClassName": "CanOpener", "Quantity": 1 },
+                { "ClassName": "Matchbox", "Quantity": 1 }
+            ]
+        },
+        {
+            "ClassName": "WorkingBoots_Grey",
             "Inventory": []
         },
         {
             "ClassName": "ShoulderBag_Green",
-            "Inventory": []
+            "Inventory": [
+                { "ClassName": "WaterBottle", "Quantity": 1 },
+                { "ClassName": "SeedsPack_Tomato", "Quantity": 1 },
+                { "ClassName": "SeedsPack_Zucchini", "Quantity": 1 },
+                { "ClassName": "SeedsPack_Pumpkin", "Quantity": 1 },
+                { "ClassName": "SeedsPack_Pepper", "Quantity": 1 }
+            ]
         }
     ]
 }
-
