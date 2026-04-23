@@ -1,28 +1,25 @@
 {
-    "Version": 1,
-    "IsCharacterCustom": 1,
-    "CharacterCustom": "SurvivorM_Maverick",
-    "Inventory": [
+    "Factions": [
         {
-            "ClassName": "AN_NEKRASOV_82_Identity_Doc",
-            "Quantity": 1
-        },
-        {
-            "ClassName": "TTsKO_Jacket_Camo",
-            "Inventory": []
-        },
-        {
-            "ClassName": "TTsKO_Pants_Camo",
-            "Inventory": []
-        },
-        {
-            "ClassName": "MilitaryBoots_Black",
-            "Inventory": []
-        },
-        {
-            "ClassName": "ShoulderBag_Green",
-            "Inventory": []
+            "Faction": "Shamans",
+            "Formation": "None",
+            "Waiting": 0,
+            "NPCS": [
+                {
+                    "ClassName": "AN_NEKRASOV_82_Loadout",
+                    "Name": "AN_NEKRASOV_82",
+                    "Persist": 1,
+                    "DespawnTime": -1.0,
+                    "RespawnTime": 300.0,
+                    "Waypoints": [
+                        [308.474, 283.267, 260.481],
+                        [312.0, 283.2, 262.0], 
+                        [305.0, 283.5, 258.0]
+                    ],
+                    "WaypointBehaviour": 1,
+                    "SpeedLimit": 3.0
+                }
+            ]
         }
     ]
 }
-
