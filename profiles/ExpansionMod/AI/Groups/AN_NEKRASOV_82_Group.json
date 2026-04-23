@@ -1,0 +1,28 @@
+{
+    "Version": 1,
+    "IsCharacterCustom": 1,
+    "CharacterCustom": "SurvivorM_Maverick",
+    "Inventory": [
+        {
+            "ClassName": "AN_NEKRASOV_82_Identity_Doc",
+            "Quantity": 1
+        },
+        {
+            "ClassName": "TTsKO_Jacket_Camo",
+            "Inventory": []
+        },
+        {
+            "ClassName": "TTsKO_Pants_Camo",
+            "Inventory": []
+        },
+        {
+            "ClassName": "MilitaryBoots_Black",
+            "Inventory": []
+        },
+        {
+            "ClassName": "ShoulderBag_Green",
+            "Inventory": []
+        }
+    ]
+}
+
